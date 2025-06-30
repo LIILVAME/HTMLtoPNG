@@ -146,12 +146,31 @@ class HTMLtoPNGConverter {
         // Control buttons
         const refreshBtn = document.getElementById('refreshBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const expandBtn = document.getElementById('expandBtn');
         
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => this.refreshPreview());
         }
         if (downloadBtn) {
             downloadBtn.addEventListener('click', () => this.downloadImage());
+        }
+        if (expandBtn) {
+            expandBtn.addEventListener('click', () => this.expandPreview());
+        }
+        
+        // Preview expand modal
+        const previewExpandModal = document.getElementById('previewExpandModal');
+        const previewExpandClose = document.getElementById('previewExpandClose');
+        
+        if (previewExpandClose) {
+            previewExpandClose.addEventListener('click', () => this.closeExpandedPreview());
+        }
+        if (previewExpandModal) {
+            previewExpandModal.addEventListener('click', (e) => {
+                if (e.target === previewExpandModal) {
+                    this.closeExpandedPreview();
+                }
+            });
         }
 
         // Resolution inputs
@@ -1361,6 +1380,12 @@ class HTMLtoPNGConverter {
             if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
                 e.preventDefault();
                 this.refreshPreview();
+            }
+            
+            // F11 to expand preview
+            if (e.key === 'F11') {
+                e.preventDefault();
+                this.expandPreview();
             }
             
             // Ctrl/Cmd + D to toggle theme
@@ -3854,6 +3879,46 @@ HTMLtoPNGConverter.prototype.insertColorToCode = function(colorHex) {
         document.getElementById('externalServiceModal').remove();
     }
 };
+
+// Preview expand functionality
+HTMLtoPNGConverter.prototype.expandPreview = function() {
+    const previewFrame = document.getElementById('previewFrame');
+    const previewExpandModal = document.getElementById('previewExpandModal');
+    const previewExpandFrame = document.getElementById('previewExpandFrame');
+    
+    if (previewFrame && previewExpandModal && previewExpandFrame) {
+        // Copy the current preview content to the expanded modal
+        previewExpandFrame.src = previewFrame.src;
+        previewExpandFrame.srcdoc = previewFrame.srcdoc;
+        
+        // Show the modal
+        previewExpandModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Add keyboard listener for ESC key
+        this.handleExpandKeydown = (e) => {
+            if (e.key === 'Escape') {
+                this.closeExpandedPreview();
+            }
+        };
+        document.addEventListener('keydown', this.handleExpandKeydown);
+    }
+};
+
+HTMLtoPNGConverter.prototype.closeExpandedPreview = function() {
+    const previewExpandModal = document.getElementById('previewExpandModal');
+    
+    if (previewExpandModal) {
+        previewExpandModal.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        // Remove keyboard listener
+        if (this.handleExpandKeydown) {
+            document.removeEventListener('keydown', this.handleExpandKeydown);
+            this.handleExpandKeydown = null;
+        }
+     }
+ };
 
 // Initialize the converter when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

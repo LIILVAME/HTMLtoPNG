@@ -341,6 +341,9 @@
                         <button class="control-btn" id="refreshBtn" title="Refresh Preview (Ctrl+R)">
                             <i class="fas fa-sync-alt"></i>
                         </button>
+                        <button class="control-btn" id="expandBtn" title="Expand Preview (F11)">
+                            <i class="fas fa-expand"></i>
+                        </button>
                         <button class="control-btn" id="downloadBtn" disabled title="Download Image (Ctrl+S)">
                             <i class="fas fa-download"></i>
                         </button>
@@ -752,6 +755,19 @@
             });
         }
     </script>
+    
+    <!-- Preview Expand Modal -->
+    <div class="preview-expand-modal" id="previewExpandModal">
+        <div class="preview-expand-content">
+            <div class="preview-expand-header">
+                <h3 class="preview-expand-title" data-translate="expanded_preview_title">Aperçu Agrandie</h3>
+                <button class="preview-expand-close" id="previewExpandClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <iframe class="preview-expand-frame" id="previewExpandFrame"></iframe>
+        </div>
+    </div>
     
     <!-- API Services Scripts -->
     <script src="api-config.js"></script>
