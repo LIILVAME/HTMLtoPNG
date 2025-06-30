@@ -20,6 +20,26 @@ class APIConfig {
         }
     }
 
+    // Méthode pour gérer les variables d'environnement côté navigateur
+    getEnvVar(varName) {
+        // En développement, on peut utiliser des valeurs par défaut
+        if (this.environment === 'development') {
+            const defaults = {
+                'UNSPLASH_ACCESS_KEY': 'demo_key',
+                'GOOGLE_FONTS_API_KEY': 'demo_key',
+                'PEXELS_API_KEY': 'demo_key',
+                'CLOUDINARY_CLOUD_NAME': 'demo_cloud',
+                'CLOUDINARY_API_KEY': 'demo_key',
+                'CLOUDINARY_API_SECRET': 'demo_secret'
+            };
+            return defaults[varName] || null;
+        }
+        
+        // En production, les clés devraient être configurées côté serveur
+        // ou injectées lors du build
+        return window.ENV?.[varName] || null;
+    }
+
     getConfigForEnvironment() {
         const configs = {
             development: {
@@ -87,12 +107,12 @@ class APIConfig {
                 external: {
                     unsplash: {
                         baseURL: 'https://api.unsplash.com',
-                        accessKey: process.env.UNSPLASH_ACCESS_KEY || 'staging_key',
+                        accessKey: this.getEnvVar('UNSPLASH_ACCESS_KEY') || 'staging_key',
                         rateLimit: 50
                     },
                     googleFonts: {
                         baseURL: 'https://www.googleapis.com/webfonts/v1',
-                        apiKey: process.env.GOOGLE_FONTS_API_KEY || 'staging_key'
+                        apiKey: this.getEnvVar('GOOGLE_FONTS_API_KEY') || 'staging_key'
                     },
                     iconify: {
                         baseURL: 'https://api.iconify.design',
@@ -126,12 +146,12 @@ class APIConfig {
                 external: {
                     unsplash: {
                         baseURL: 'https://api.unsplash.com',
-                        accessKey: process.env.UNSPLASH_ACCESS_KEY,
+                        accessKey: this.getEnvVar('UNSPLASH_ACCESS_KEY'),
                         rateLimit: 5000
                     },
                     googleFonts: {
                         baseURL: 'https://www.googleapis.com/webfonts/v1',
-                        apiKey: process.env.GOOGLE_FONTS_API_KEY
+                        apiKey: this.getEnvVar('GOOGLE_FONTS_API_KEY')
                     },
                     iconify: {
                         baseURL: 'https://api.iconify.design',
@@ -139,14 +159,14 @@ class APIConfig {
                     },
                     pexels: {
                         baseURL: 'https://api.pexels.com/v1',
-                        apiKey: process.env.PEXELS_API_KEY,
+                        apiKey: this.getEnvVar('PEXELS_API_KEY'),
                         rateLimit: 200
                     },
                     cloudinary: {
                         baseURL: 'https://api.cloudinary.com/v1_1',
-                        cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-                        apiKey: process.env.CLOUDINARY_API_KEY,
-                        apiSecret: process.env.CLOUDINARY_API_SECRET
+                        cloudName: this.getEnvVar('CLOUDINARY_CLOUD_NAME'),
+                        apiKey: this.getEnvVar('CLOUDINARY_API_KEY'),
+                        apiSecret: this.getEnvVar('CLOUDINARY_API_SECRET')
                     }
                 }
             }

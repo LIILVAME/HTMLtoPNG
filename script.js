@@ -10,42 +10,49 @@ class HTMLtoPNGConverter {
     }
 
     init() {
-        this.initializeTheme();
-        this.bindEvents();
-        this.setupPresets();
-        this.initializePreview();
-        this.setupKeyboardShortcuts();
-        this.setupAutoSave();
-        
-        // Initialize Web Worker for performance
-        this.initializeWorkerManager();
-        
-        // Initialize Cache Manager for performance
-        this.initializeCacheManager();
-        
-        // Initialize Lazy Loader for performance
-        this.initializeLazyLoader();
-        
-        // Initialize API Services
-        this.initializeAPIServices();
-        
-        // Initialize Phase 2 Features
-        this.initializeImageManager();
-        this.initializeHistoryManager();
-        this.initializeTemplateManager();
-        this.initializeSocialShare();
-        this.initializeQuickToolbar();
-        
-        // Initialize empty preview
-        setTimeout(() => this.updatePreview(), 500);
-        
-        // Set default preset to desktop
-        this.applyPreset('desktop');
-        
-        // Initialize UX improvements
-        this.initializeOnboarding();
-        this.initializeProgressTracking();
-        this.initializeMicroInteractions();
+        console.log('HTMLtoPNGConverter: Initialisation...');
+        try {
+            this.initializeTheme();
+            this.bindEvents();
+            this.setupPresets();
+            this.initializePreview();
+            this.setupKeyboardShortcuts();
+            this.setupAutoSave();
+            
+            // Initialize Web Worker for performance
+            this.initializeWorkerManager();
+            
+            // Initialize Cache Manager for performance
+            this.initializeCacheManager();
+            
+            // Initialize Lazy Loader for performance
+            this.initializeLazyLoader();
+            
+            // Initialize API Services
+            this.initializeAPIServices();
+            
+            // Initialize Phase 2 Features
+            this.initializeImageManager();
+            this.initializeHistoryManager();
+            this.initializeTemplateManager();
+            this.initializeSocialShare();
+            this.initializeQuickToolbar();
+            
+            // Initialize empty preview
+            setTimeout(() => this.updatePreview(), 500);
+            
+            // Set default preset to desktop
+            this.applyPreset('desktop');
+            
+            // Initialize UX improvements
+            this.initializeOnboarding();
+            this.initializeProgressTracking();
+            this.initializeMicroInteractions();
+            
+            console.log('HTMLtoPNGConverter: Initialisation réussie');
+        } catch (error) {
+            console.error('HTMLtoPNGConverter: Erreur lors de l\'initialisation:', error);
+        }
     }
 
     bindEvents() {
@@ -283,16 +290,32 @@ class HTMLtoPNGConverter {
     }
 
     updatePreview() {
-        const htmlCode = document.getElementById('htmlInput').value;
-        const cssCode = document.getElementById('cssInput').value;
-        
-        if (!htmlCode.trim()) {
-            this.showPreviewPlaceholder();
-            return;
-        }
+        console.log('HTMLtoPNGConverter: updatePreview() appelée');
+        try {
+            const htmlInput = document.getElementById('htmlInput');
+            const cssInput = document.getElementById('cssInput');
+            
+            if (!htmlInput || !cssInput) {
+                console.error('Elements input non trouvés');
+                return;
+            }
+            
+            const htmlCode = htmlInput.value;
+            const cssCode = cssInput.value;
+            
+            console.log('HTML Code length:', htmlCode.length);
+            console.log('CSS Code length:', cssCode.length);
+            
+            if (!htmlCode.trim()) {
+                this.showPreviewPlaceholder();
+                return;
+            }
 
-        const combinedHTML = this.combineHTMLCSS(htmlCode, cssCode);
-        this.renderPreview(combinedHTML);
+            const combinedHTML = this.combineHTMLCSS(htmlCode, cssCode);
+            this.renderPreview(combinedHTML);
+        } catch (error) {
+            console.error('Erreur dans updatePreview:', error);
+        }
     }
 
     combineHTMLCSS(html, css) {
@@ -617,13 +640,26 @@ class HTMLtoPNGConverter {
     }
 
     renderPreview(html) {
-        const previewFrame = document.getElementById('previewFrame');
-        const placeholder = document.getElementById('previewPlaceholder');
-        
-        if (previewFrame) {
+        console.log('HTMLtoPNGConverter: renderPreview() appelée');
+        try {
+            const previewFrame = document.getElementById('previewFrame');
+            const placeholder = document.getElementById('previewPlaceholder');
+            
+            if (!previewFrame) {
+                console.error('Element previewFrame non trouvé');
+                return;
+            }
+            
+            if (!placeholder) {
+                console.error('Element previewPlaceholder non trouvé');
+                return;
+            }
+            
             // Create blob URL for the HTML content
             const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
+            
+            console.log('Blob URL créé:', url);
             
             previewFrame.src = url;
             previewFrame.style.display = 'block';
@@ -631,8 +667,15 @@ class HTMLtoPNGConverter {
             
             // Clean up previous blob URL
             previewFrame.onload = () => {
+                console.log('Preview frame chargé avec succès');
                 URL.revokeObjectURL(url);
             };
+            
+            previewFrame.onerror = (error) => {
+                console.error('Erreur lors du chargement du preview frame:', error);
+            };
+        } catch (error) {
+            console.error('Erreur dans renderPreview:', error);
         }
     }
 

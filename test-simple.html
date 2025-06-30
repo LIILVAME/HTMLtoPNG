@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple HTML to PNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .converter-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .input-section, .preview-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .code-input {
+            width: 100%;
+            height: 200px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .convert-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .convert-btn:hover {
+            background: #0056b3;
+        }
+        .preview-container {
+            position: relative;
+            border: 1px solid #ccc;
+            height: 400px;
+            background: #f9f9f9;
+        }
+        .preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+        }
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Simple HTML to PNG Converter</h1>
+        
+        <div class="status">
+            <strong>Status:</strong> <span id="status">Chargement...</span>
+        </div>
+        
+        <div class="converter-layout">
+            <!-- Section d'entrée -->
+            <div class="input-section">
+                <h2>📝 Code HTML & CSS</h2>
+                
+                <div>
+                    <label for="htmlInput"><strong>HTML:</strong></label>
+                    <textarea 
+                        id="htmlInput" 
+                        class="code-input" 
+                        placeholder="Entrez votre code HTML ici..."><h1 style='color: blue;'>Hello World!</h1>
+<p style='color: green; font-size: 18px;'>Ceci est un test du convertisseur HTML vers PNG.</p>
+<div style='background: linear-gradient(45deg, #ff6b6b, #4ecdc4); padding: 20px; border-radius: 10px; color: white; text-align: center;'>
+    <h2>Gradient Background</h2>
+    <p>Avec du texte stylé!</p>
+</div></textarea>
+                </div>
+                
+                <div>
+                    <label for="cssInput"><strong>CSS:</strong></label>
+                    <textarea 
+                        id="cssInput" 
+                        class="code-input" 
+                        placeholder="Entrez votre code CSS ici...">body {
+    font-family: 'Arial', sans-serif;
+    margin: 20px;
+    background: #f0f8ff;
+}
+
+h1 {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+p {
+    line-height: 1.6;
+    margin: 15px 0;
+}</textarea>
+                </div>
+                
+                <button class="convert-btn" id="convertBtn">
+                    🎨 Convertir en PNG
+                </button>
+            </div>
+            
+            <!-- Section d'aperçu -->
+            <div class="preview-section">
+                <h2>👁️ Aperçu en Direct</h2>
+                
+                <div class="preview-container">
+                    <div class="preview-placeholder" id="previewPlaceholder">
+                        <div style="font-size: 48px;">🖼️</div>
+                        <p>Votre aperçu HTML apparaîtra ici</p>
+                    </div>
+                    <iframe id="previewFrame" class="preview-frame" style="display: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Script simplifié -->
+    <script src="script-simple.js"></script>
+    
+    <script>
+        // Mise à jour du status
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusElement = document.getElementById('status');
+            
+            setTimeout(() => {
+                if (window.converter) {
+                    statusElement.textContent = '✅ Converter initialisé avec succès';
+                    statusElement.parentElement.style.background = '#d4edda';
+                    statusElement.parentElement.style.borderLeftColor = '#28a745';
+                } else {
+                    statusElement.textContent = '❌ Erreur d\'initialisation';
+                    statusElement.parentElement.style.background = '#f8d7da';
+                    statusElement.parentElement.style.borderLeftColor = '#dc3545';
+                }
+            }, 1000);
+        });
+        
+        // Log des erreurs globales
+        window.addEventListener('error', (event) => {
+            console.error('Erreur globale:', event.error);
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = '❌ Erreur: ' + event.error.message;
+            statusElement.parentElement.style.background = '#f8d7da';
+            statusElement.parentElement.style.borderLeftColor = '#dc3545';
+        });
+        
+        console.log('Page de test simple chargée');
+    </script>
+</body>
+</html>
