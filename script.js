@@ -3793,13 +3793,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.converter = new HTMLtoPNGConverter();
 });
 
-}
-
-// Initialize the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new HTMLtoPNGConverter();
-});
-
 // Handle language changes
 window.addEventListener('languageChanged', (e) => {
     // Update any dynamic content that needs translation
