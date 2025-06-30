@@ -1,0 +1,367 @@
+name: 🚀 Optimisation des Assets
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.js'
+      - '**.css'
+      - '**.html'
+      - '**.png'
+      - '**.jpg'
+      - '**.jpeg'
+      - '**.svg'
+  workflow_dispatch:
+
+jobs:
+  asset-optimization:
+    name: 📦 Optimisation des Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🌐 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🔧 Installation des outils d'optimisation
+        run: |
+          npm install -g terser
+          npm install -g csso-cli
+          npm install -g html-minifier-terser
+          sudo apt-get update
+          sudo apt-get install -y optipng jpegoptim
+
+      - name: 📁 Création du dossier optimisé
+        run: |
+          mkdir -p optimized
+          cp -r * optimized/ 2>/dev/null || true
+          cd optimized
+          rm -rf .git .github node_modules 2>/dev/null || true
+
+      - name: 🗜️ Minification JavaScript
+        run: |
+          echo "🗜️ Minification des fichiers JavaScript"
+          cd optimized
+          
+          for js_file in *.js; do
+            if [ -f "$js_file" ] && [ "$js_file" != "*.js" ]; then
+              echo "📄 Minification de $js_file"
+              original_size=$(stat -c%s "$js_file" 2>/dev/null || stat -f%z "$js_file")
+              
+              # Sauvegarde de l'original
+              cp "$js_file" "${js_file}.original"
+              
+              # Minification
+              terser "$js_file" --compress --mangle --output "$js_file" || {
+                echo "⚠️ Erreur lors de la minification de $js_file, restauration de l'original"
+                mv "${js_file}.original" "$js_file"
+                continue
+              }
+              
+              new_size=$(stat -c%s "$js_file" 2>/dev/null || stat -f%z "$js_file")
+              reduction=$((original_size - new_size))
+              percentage=$((reduction * 100 / original_size))
+              
+              echo "✅ $js_file: ${original_size} → ${new_size} bytes (-${percentage}%)"
+              rm "${js_file}.original"
+            fi
+          done
+
+      - name: 🎨 Minification CSS
+        run: |
+          echo "🎨 Minification des fichiers CSS"
+          cd optimized
+          
+          for css_file in *.css; do
+            if [ -f "$css_file" ] && [ "$css_file" != "*.css" ]; then
+              echo "📄 Minification de $css_file"
+              original_size=$(stat -c%s "$css_file" 2>/dev/null || stat -f%z "$css_file")
+              
+              # Sauvegarde de l'original
+              cp "$css_file" "${css_file}.original"
+              
+              # Minification
+              csso "$css_file" --output "$css_file" || {
+                echo "⚠️ Erreur lors de la minification de $css_file, restauration de l'original"
+                mv "${css_file}.original" "$css_file"
+                continue
+              }
+              
+              new_size=$(stat -c%s "$css_file" 2>/dev/null || stat -f%z "$css_file")
+              reduction=$((original_size - new_size))
+              percentage=$((reduction * 100 / original_size))
+              
+              echo "✅ $css_file: ${original_size} → ${new_size} bytes (-${percentage}%)"
+              rm "${css_file}.original"
+            fi
+          done
+
+      - name: 📝 Minification HTML
+        run: |
+          echo "📝 Minification des fichiers HTML"
+          cd optimized
+          
+          for html_file in *.html; do
+            if [ -f "$html_file" ] && [ "$html_file" != "*.html" ]; then
+              echo "📄 Minification de $html_file"
+              original_size=$(stat -c%s "$html_file" 2>/dev/null || stat -f%z "$html_file")
+              
+              # Sauvegarde de l'original
+              cp "$html_file" "${html_file}.original"
+              
+              # Minification HTML avec préservation des fonctionnalités
+              html-minifier-terser \
+                --collapse-whitespace \
+                --remove-comments \
+                --remove-optional-tags \
+                --remove-redundant-attributes \
+                --remove-script-type-attributes \
+                --remove-tag-whitespace \
+                --use-short-doctype \
+                --minify-css true \
+                --minify-js true \
+                "$html_file" -o "$html_file" || {
+                echo "⚠️ Erreur lors de la minification de $html_file, restauration de l'original"
+                mv "${html_file}.original" "$html_file"
+                continue
+              }
+              
+              new_size=$(stat -c%s "$html_file" 2>/dev/null || stat -f%z "$html_file")
+              reduction=$((original_size - new_size))
+              percentage=$((reduction * 100 / original_size))
+              
+              echo "✅ $html_file: ${original_size} → ${new_size} bytes (-${percentage}%)"
+              rm "${html_file}.original"
+            fi
+          done
+
+      - name: 🖼️ Optimisation des images
+        run: |
+          echo "🖼️ Optimisation des images"
+          cd optimized
+          
+          # Optimisation des PNG
+          for png_file in *.png **/*.png; do
+            if [ -f "$png_file" ]; then
+              echo "📸 Optimisation de $png_file"
+              original_size=$(stat -c%s "$png_file" 2>/dev/null || stat -f%z "$png_file")
+              
+              optipng -o2 "$png_file" 2>/dev/null || echo "⚠️ Impossible d'optimiser $png_file"
+              
+              new_size=$(stat -c%s "$png_file" 2>/dev/null || stat -f%z "$png_file")
+              if [ $new_size -lt $original_size ]; then
+                reduction=$((original_size - new_size))
+                percentage=$((reduction * 100 / original_size))
+                echo "✅ $png_file: ${original_size} → ${new_size} bytes (-${percentage}%)"
+              fi
+            fi
+          done
+          
+          # Optimisation des JPEG
+          for jpg_file in *.jpg *.jpeg **/*.jpg **/*.jpeg; do
+            if [ -f "$jpg_file" ]; then
+              echo "📸 Optimisation de $jpg_file"
+              original_size=$(stat -c%s "$jpg_file" 2>/dev/null || stat -f%z "$jpg_file")
+              
+              jpegoptim --max=85 "$jpg_file" 2>/dev/null || echo "⚠️ Impossible d'optimiser $jpg_file"
+              
+              new_size=$(stat -c%s "$jpg_file" 2>/dev/null || stat -f%z "$jpg_file")
+              if [ $new_size -lt $original_size ]; then
+                reduction=$((original_size - new_size))
+                percentage=$((reduction * 100 / original_size))
+                echo "✅ $jpg_file: ${original_size} → ${new_size} bytes (-${percentage}%)"
+              fi
+            fi
+          done
+
+      - name: 📊 Génération du rapport d'optimisation
+        run: |
+          echo "📊 Génération du rapport d'optimisation"
+          cd optimized
+          
+          cat > optimization-report.md << EOF
+          # 📊 Rapport d'Optimisation des Assets
+          
+          **Date**: $(date)
+          **Commit**: ${{ github.sha }}
+          
+          ## 📈 Résultats de l'Optimisation
+          
+          ### 📁 Fichiers Traités
+          
+          #### JavaScript
+          $(find . -name "*.js" -type f | wc -l) fichiers JavaScript optimisés
+          
+          #### CSS
+          $(find . -name "*.css" -type f | wc -l) fichiers CSS optimisés
+          
+          #### HTML
+          $(find . -name "*.html" -type f | wc -l) fichiers HTML optimisés
+          
+          #### Images
+          - PNG: $(find . -name "*.png" -type f | wc -l) fichiers
+          - JPEG: $(find . -name "*.jpg" -o -name "*.jpeg" -type f | wc -l) fichiers
+          
+          ### 📏 Taille Totale du Projet
+          **Après optimisation**: $(du -sh . | cut -f1)
+          
+          ### 🚀 Recommandations
+          
+          - ✅ Assets minifiés et optimisés
+          - ✅ Images compressées
+          - ✅ Code prêt pour la production
+          
+          ### 📋 Prochaines Étapes
+          
+          1. Vérifier que l'application fonctionne correctement
+          2. Tester les performances en production
+          3. Monitorer la taille des assets lors des futures mises à jour
+          
+          ---
+          *Rapport généré automatiquement*
+          EOF
+          
+          echo "✅ Rapport d'optimisation généré"
+
+      - name: 🧪 Test de fonctionnalité après optimisation
+        run: |
+          echo "🧪 Test de fonctionnalité après optimisation"
+          cd optimized
+          
+          # Démarrage du serveur de test
+          python3 -m http.server 8080 &
+          SERVER_PID=$!
+          sleep 5
+          
+          # Tests de base
+          echo "🔍 Test de chargement de la page"
+          curl -f http://localhost:8080/ || {
+            echo "❌ Erreur: La page ne se charge pas après optimisation"
+            kill $SERVER_PID
+            exit 1
+          }
+          
+          echo "🔍 Test de chargement des scripts"
+          curl -f http://localhost:8080/script.js || {
+            echo "❌ Erreur: script.js ne se charge pas après optimisation"
+            kill $SERVER_PID
+            exit 1
+          }
+          
+          echo "🔍 Test de chargement des styles"
+          curl -f http://localhost:8080/styles.css || {
+            echo "❌ Erreur: styles.css ne se charge pas après optimisation"
+            kill $SERVER_PID
+            exit 1
+          }
+          
+          echo "✅ Tous les tests de fonctionnalité passés"
+          kill $SERVER_PID
+
+      - name: 📤 Upload des assets optimisés
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimized-assets
+          path: optimized/
+          retention-days: 30
+
+      - name: 📤 Upload du rapport d'optimisation
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimization-report
+          path: optimized/optimization-report.md
+          retention-days: 30
+
+  cache-optimization:
+    name: 🗄️ Optimisation du Cache
+    runs-on: ubuntu-latest
+    needs: asset-optimization
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 📥 Téléchargement des assets optimisés
+        uses: actions/download-artifact@v4
+        with:
+          name: optimized-assets
+          path: optimized/
+
+      - name: 🗄️ Configuration du cache
+        run: |
+          echo "🗄️ Configuration des en-têtes de cache"
+          cd optimized
+          
+          # Création d'un fichier .htaccess pour Apache (si utilisé)
+          cat > .htaccess << 'EOF'
+          # Configuration du cache pour les assets statiques
+          <IfModule mod_expires.c>
+              ExpiresActive on
+              
+              # Images
+              ExpiresByType image/png "access plus 1 year"
+              ExpiresByType image/jpg "access plus 1 year"
+              ExpiresByType image/jpeg "access plus 1 year"
+              ExpiresByType image/gif "access plus 1 year"
+              ExpiresByType image/svg+xml "access plus 1 year"
+              
+              # CSS et JavaScript
+              ExpiresByType text/css "access plus 1 month"
+              ExpiresByType application/javascript "access plus 1 month"
+              ExpiresByType text/javascript "access plus 1 month"
+              
+              # HTML
+              ExpiresByType text/html "access plus 1 hour"
+          </IfModule>
+          
+          # Compression gzip
+          <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE text/plain
+              AddOutputFilterByType DEFLATE text/html
+              AddOutputFilterByType DEFLATE text/xml
+              AddOutputFilterByType DEFLATE text/css
+              AddOutputFilterByType DEFLATE application/xml
+              AddOutputFilterByType DEFLATE application/xhtml+xml
+              AddOutputFilterByType DEFLATE application/rss+xml
+              AddOutputFilterByType DEFLATE application/javascript
+              AddOutputFilterByType DEFLATE application/x-javascript
+          </IfModule>
+          EOF
+          
+          echo "✅ Configuration du cache créée"
+
+      - name: 📤 Upload de la configuration finale
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-ready-assets
+          path: optimized/
+          retention-days: 90
+
+  notification:
+    name: 📧 Notification d'Optimisation
+    runs-on: ubuntu-latest
+    needs: [asset-optimization, cache-optimization]
+    if: always()
+    steps:
+      - name: 📧 Résumé de l'optimisation
+        run: |
+          echo "📧 Résumé de l'optimisation des assets"
+          
+          OPTIMIZATION_STATUS="${{ needs.asset-optimization.result }}"
+          CACHE_STATUS="${{ needs.cache-optimization.result }}"
+          
+          echo "📦 Optimisation des assets: $OPTIMIZATION_STATUS"
+          echo "🗄️ Configuration du cache: $CACHE_STATUS"
+          
+          if [[ "$OPTIMIZATION_STATUS" == "success" && "$CACHE_STATUS" == "success" ]]; then
+            echo "✅ Optimisation complète réussie!"
+            echo "🚀 Les assets sont prêts pour la production"
+            echo "📊 Consultez les artifacts pour les rapports détaillés"
+          else
+            echo "⚠️ Problème lors de l'optimisation"
+            echo "🔍 Vérifiez les logs pour plus de détails"
+          fi

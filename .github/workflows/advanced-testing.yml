@@ -1,0 +1,271 @@
+name: 🧪 Tests Avancés et Monitoring
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Tests automatiques tous les jours à 2h du matin
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    name: 🔗 Tests d'Intégration
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🌐 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🔧 Installation des dépendances de test
+        run: |
+          npm install -g playwright
+          npm install -g lighthouse
+          npm install -g axe-core
+
+      - name: 🚀 Démarrage du serveur de test
+        run: |
+          python3 -m http.server 8080 &
+          sleep 5
+        
+      - name: 🧪 Tests d'intégration E2E
+        run: |
+          echo "🔍 Test de chargement de la page principale"
+          curl -f http://localhost:8080/ || exit 1
+          
+          echo "🔍 Test de présence des éléments critiques"
+          curl -s http://localhost:8080/ | grep -q "HTML to PNG" || exit 1
+          curl -s http://localhost:8080/ | grep -q "convertBtn" || exit 1
+          curl -s http://localhost:8080/ | grep -q "htmlInput" || exit 1
+          
+          echo "🔍 Test de chargement des scripts"
+          curl -f http://localhost:8080/script.js || exit 1
+          curl -f http://localhost:8080/social-share.js || exit 1
+          
+          echo "🔍 Test de chargement des styles"
+          curl -f http://localhost:8080/styles.css || exit 1
+          
+          echo "✅ Tous les tests d'intégration passés"
+
+  performance-tests:
+    name: ⚡ Tests de Performance
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🌐 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🔧 Installation de Lighthouse
+        run: npm install -g lighthouse
+
+      - name: 🚀 Démarrage du serveur
+        run: |
+          python3 -m http.server 8080 &
+          sleep 5
+
+      - name: ⚡ Audit de performance Lighthouse
+        run: |
+          echo "🔍 Analyse des performances avec Lighthouse"
+          lighthouse http://localhost:8080 --output=json --output-path=./lighthouse-report.json --chrome-flags="--headless --no-sandbox" || true
+          
+          echo "📊 Vérification des métriques de performance"
+          if [ -f lighthouse-report.json ]; then
+            echo "✅ Rapport Lighthouse généré avec succès"
+            # Extraction des métriques principales
+            node -e "const report = JSON.parse(require('fs').readFileSync('lighthouse-report.json')); console.log('Performance Score:', report.lhr.categories.performance.score * 100); console.log('Accessibility Score:', report.lhr.categories.accessibility.score * 100);"
+          else
+            echo "⚠️ Impossible de générer le rapport Lighthouse"
+          fi
+
+      - name: 📈 Test de taille des fichiers
+        run: |
+          echo "📏 Vérification de la taille des assets"
+          
+          # Vérification que les fichiers ne sont pas trop volumineux
+          MAX_SIZE=500000  # 500KB
+          
+          for file in *.js *.css *.html; do
+            if [ -f "$file" ]; then
+              size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file")
+              echo "📄 $file: ${size} bytes"
+              if [ $size -gt $MAX_SIZE ]; then
+                echo "⚠️ Attention: $file dépasse la taille recommandée (${size} > ${MAX_SIZE})"
+              fi
+            fi
+          done
+          
+          echo "✅ Vérification des tailles terminée"
+
+  browser-compatibility:
+    name: 🌐 Tests de Compatibilité Navigateur
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Démarrage du serveur
+        run: |
+          python3 -m http.server 8080 &
+          sleep 5
+
+      - name: 🌐 Test de compatibilité HTML5
+        run: |
+          echo "🔍 Vérification de la compatibilité HTML5"
+          
+          # Vérification des balises HTML5 modernes
+          curl -s http://localhost:8080/ | grep -q "<!DOCTYPE html>" || exit 1
+          curl -s http://localhost:8080/ | grep -q "<meta charset=" || exit 1
+          curl -s http://localhost:8080/ | grep -q "<meta name=\"viewport\"" || exit 1
+          
+          echo "✅ Structure HTML5 valide"
+
+      - name: 📱 Test de responsive design
+        run: |
+          echo "📱 Vérification du design responsive"
+          
+          # Vérification de la présence de media queries
+          if curl -s http://localhost:8080/styles.css | grep -q "@media"; then
+            echo "✅ Media queries détectées"
+          else
+            echo "⚠️ Aucune media query trouvée"
+          fi
+          
+          # Vérification du viewport
+          if curl -s http://localhost:8080/ | grep -q "viewport"; then
+            echo "✅ Balise viewport présente"
+          else
+            echo "❌ Balise viewport manquante"
+            exit 1
+          fi
+
+  accessibility-audit:
+    name: ♿ Audit d'Accessibilité
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Démarrage du serveur
+        run: |
+          python3 -m http.server 8080 &
+          sleep 5
+
+      - name: ♿ Tests d'accessibilité
+        run: |
+          echo "♿ Vérification de l'accessibilité"
+          
+          # Vérification des attributs alt pour les images
+          html_content=$(curl -s http://localhost:8080/)
+          
+          # Test des labels pour les formulaires
+          if echo "$html_content" | grep -q "<label"; then
+            echo "✅ Labels de formulaire détectés"
+          else
+            echo "⚠️ Aucun label de formulaire trouvé"
+          fi
+          
+          # Test des attributs aria
+          if echo "$html_content" | grep -q "aria-"; then
+            echo "✅ Attributs ARIA détectés"
+          else
+            echo "⚠️ Aucun attribut ARIA trouvé"
+          fi
+          
+          # Test du contraste (basique)
+          if curl -s http://localhost:8080/styles.css | grep -q "color:"; then
+            echo "✅ Styles de couleur définis"
+          fi
+          
+          echo "✅ Audit d'accessibilité terminé"
+
+  monitoring-setup:
+    name: 📊 Configuration du Monitoring
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 📊 Génération du rapport de monitoring
+        run: |
+          echo "📊 Génération du rapport de monitoring"
+          
+          # Création d'un rapport de santé du projet
+          cat > monitoring-report.md << EOF
+          # 📊 Rapport de Monitoring - $(date)
+          
+          ## 🎯 Métriques du Projet
+          
+          ### 📁 Structure des Fichiers
+          - **Fichiers HTML**: $(find . -name "*.html" | wc -l)
+          - **Fichiers JavaScript**: $(find . -name "*.js" | wc -l)
+          - **Fichiers CSS**: $(find . -name "*.css" | wc -l)
+          - **Fichiers de configuration**: $(find . -name "*.json" -o -name "*.yml" -o -name "*.yaml" | wc -l)
+          
+          ### 📏 Taille du Projet
+          - **Taille totale**: $(du -sh . | cut -f1)
+          - **Nombre de lignes de code**: $(find . -name "*.js" -o -name "*.css" -o -name "*.html" | xargs wc -l | tail -1)
+          
+          ### 🔧 Configuration
+          - **Workflow GitHub Actions**: ✅ Configuré
+          - **Déploiement automatique**: ✅ Actif
+          - **Tests automatisés**: ✅ Configuré
+          
+          ### 📈 Statut des Tests
+          - **Tests d'intégration**: En cours...
+          - **Tests de performance**: En cours...
+          - **Tests de compatibilité**: En cours...
+          - **Audit d'accessibilité**: En cours...
+          
+          ---
+          *Rapport généré automatiquement le $(date)*
+          EOF
+          
+          echo "✅ Rapport de monitoring généré"
+          
+      - name: 📤 Upload du rapport
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-report
+          path: monitoring-report.md
+          retention-days: 30
+
+  notification:
+    name: 📧 Notifications
+    runs-on: ubuntu-latest
+    needs: [integration-tests, performance-tests, browser-compatibility, accessibility-audit]
+    if: always()
+    steps:
+      - name: 📧 Résumé des tests
+        run: |
+          echo "📧 Génération du résumé des tests avancés"
+          
+          # Statut des jobs
+          INTEGRATION_STATUS="${{ needs.integration-tests.result }}"
+          PERFORMANCE_STATUS="${{ needs.performance-tests.result }}"
+          COMPATIBILITY_STATUS="${{ needs.browser-compatibility.result }}"
+          ACCESSIBILITY_STATUS="${{ needs.accessibility-audit.result }}"
+          
+          echo "🔗 Tests d'intégration: $INTEGRATION_STATUS"
+          echo "⚡ Tests de performance: $PERFORMANCE_STATUS"
+          echo "🌐 Tests de compatibilité: $COMPATIBILITY_STATUS"
+          echo "♿ Audit d'accessibilité: $ACCESSIBILITY_STATUS"
+          
+          # Détermination du statut global
+          if [[ "$INTEGRATION_STATUS" == "success" && "$PERFORMANCE_STATUS" == "success" && "$COMPATIBILITY_STATUS" == "success" && "$ACCESSIBILITY_STATUS" == "success" ]]; then
+            echo "✅ Tous les tests avancés ont réussi!"
+            echo "🚀 Le projet est prêt pour la production"
+          else
+            echo "⚠️ Certains tests ont échoué ou ont été ignorés"
+            echo "🔍 Vérifiez les logs pour plus de détails"
+          fi

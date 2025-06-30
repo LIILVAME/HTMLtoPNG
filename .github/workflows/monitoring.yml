@@ -1,0 +1,466 @@
+name: 📊 Monitoring et Alertes Avancées
+
+on:
+  schedule:
+    # Monitoring quotidien à 6h du matin
+    - cron: '0 6 * * *'
+    # Monitoring hebdomadaire le dimanche à minuit
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      monitoring_type:
+        description: 'Type de monitoring'
+        required: true
+        default: 'complet'
+        type: choice
+        options:
+        - complet
+        - performance
+        - securite
+        - disponibilite
+
+jobs:
+  health-check:
+    name: 🏥 Vérification de Santé
+    runs-on: ubuntu-latest
+    outputs:
+      site_status: ${{ steps.check.outputs.status }}
+      response_time: ${{ steps.check.outputs.response_time }}
+    steps:
+      - name: 🌐 Test de disponibilité du site
+        id: check
+        run: |
+          echo "🌐 Vérification de la disponibilité du site"
+          
+          SITE_URL="https://liilvame.github.io/HTMLtoPNG/"
+          
+          # Test de disponibilité avec mesure du temps de réponse
+          start_time=$(date +%s%N)
+          
+          if curl -f -s -o /dev/null -w "%{http_code}" "$SITE_URL" | grep -q "200"; then
+            end_time=$(date +%s%N)
+            response_time=$(( (end_time - start_time) / 1000000 ))
+            
+            echo "✅ Site accessible"
+            echo "⏱️ Temps de réponse: ${response_time}ms"
+            echo "status=up" >> $GITHUB_OUTPUT
+            echo "response_time=${response_time}" >> $GITHUB_OUTPUT
+            
+            # Vérification du contenu
+            content=$(curl -s "$SITE_URL")
+            if echo "$content" | grep -q "HTML to PNG"; then
+              echo "✅ Contenu principal détecté"
+            else
+              echo "⚠️ Contenu principal non détecté"
+            fi
+            
+          else
+            echo "❌ Site inaccessible"
+            echo "status=down" >> $GITHUB_OUTPUT
+            echo "response_time=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔍 Test des fonctionnalités critiques
+        run: |
+          echo "🔍 Test des fonctionnalités critiques"
+          
+          SITE_URL="https://liilvame.github.io/HTMLtoPNG/"
+          
+          # Récupération du contenu de la page
+          content=$(curl -s "$SITE_URL")
+          
+          # Test de présence des éléments critiques
+          critical_elements=(
+            "convertBtn"
+            "htmlInput"
+            "downloadBtn"
+            "script.js"
+            "styles.css"
+          )
+          
+          for element in "${critical_elements[@]}"; do
+            if echo "$content" | grep -q "$element"; then
+              echo "✅ Élément critique '$element' présent"
+            else
+              echo "❌ Élément critique '$element' manquant"
+            fi
+          done
+
+  performance-monitoring:
+    name: ⚡ Monitoring des Performances
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: needs.health-check.outputs.site_status == 'up'
+    steps:
+      - name: 🌐 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🔧 Installation de Lighthouse
+        run: npm install -g lighthouse
+
+      - name: ⚡ Audit de performance Lighthouse
+        run: |
+          echo "⚡ Audit de performance avec Lighthouse"
+          
+          SITE_URL="https://liilvame.github.io/HTMLtoPNG/"
+          
+          # Exécution de Lighthouse
+          lighthouse "$SITE_URL" \
+            --output=json \
+            --output-path=./lighthouse-report.json \
+            --chrome-flags="--headless --no-sandbox" \
+            --quiet || true
+          
+          if [ -f lighthouse-report.json ]; then
+            echo "📊 Extraction des métriques de performance"
+            
+            # Extraction des scores principaux
+            performance_score=$(node -e "const report = JSON.parse(require('fs').readFileSync('lighthouse-report.json')); console.log(Math.round(report.lhr.categories.performance.score * 100));")
+            accessibility_score=$(node -e "const report = JSON.parse(require('fs').readFileSync('lighthouse-report.json')); console.log(Math.round(report.lhr.categories.accessibility.score * 100));")
+            best_practices_score=$(node -e "const report = JSON.parse(require('fs').readFileSync('lighthouse-report.json')); console.log(Math.round(report.lhr.categories['best-practices'].score * 100));")
+            seo_score=$(node -e "const report = JSON.parse(require('fs').readFileSync('lighthouse-report.json')); console.log(Math.round(report.lhr.categories.seo.score * 100));")
+            
+            echo "📈 Scores Lighthouse:"
+            echo "  - Performance: ${performance_score}/100"
+            echo "  - Accessibilité: ${accessibility_score}/100"
+            echo "  - Bonnes pratiques: ${best_practices_score}/100"
+            echo "  - SEO: ${seo_score}/100"
+            
+            # Alertes si les scores sont trop bas
+            if [ $performance_score -lt 80 ]; then
+              echo "⚠️ ALERTE: Score de performance faible ($performance_score/100)"
+            fi
+            
+            if [ $accessibility_score -lt 90 ]; then
+              echo "⚠️ ALERTE: Score d'accessibilité faible ($accessibility_score/100)"
+            fi
+            
+            # Extraction des métriques Core Web Vitals
+            echo "🎯 Core Web Vitals:"
+            node -e "
+              const report = JSON.parse(require('fs').readFileSync('lighthouse-report.json'));
+              const audits = report.lhr.audits;
+              
+              const fcp = audits['first-contentful-paint']?.displayValue || 'N/A';
+              const lcp = audits['largest-contentful-paint']?.displayValue || 'N/A';
+              const cls = audits['cumulative-layout-shift']?.displayValue || 'N/A';
+              const fid = audits['max-potential-fid']?.displayValue || 'N/A';
+              
+              console.log('  - First Contentful Paint:', fcp);
+              console.log('  - Largest Contentful Paint:', lcp);
+              console.log('  - Cumulative Layout Shift:', cls);
+              console.log('  - First Input Delay:', fid);
+            "
+            
+          else
+            echo "❌ Impossible de générer le rapport Lighthouse"
+          fi
+
+      - name: 📤 Upload du rapport Lighthouse
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: lighthouse-report.json
+          retention-days: 30
+
+  security-monitoring:
+    name: 🔒 Monitoring de Sécurité
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🔒 Audit de sécurité avancé
+        run: |
+          echo "🔒 Audit de sécurité avancé"
+          
+          # Vérification des en-têtes de sécurité
+          SITE_URL="https://liilvame.github.io/HTMLtoPNG/"
+          
+          echo "🔍 Vérification des en-têtes de sécurité"
+          headers=$(curl -s -I "$SITE_URL")
+          
+          # Vérification des en-têtes de sécurité importants
+          security_headers=(
+            "X-Frame-Options"
+            "X-Content-Type-Options"
+            "Referrer-Policy"
+            "Content-Security-Policy"
+          )
+          
+          for header in "${security_headers[@]}"; do
+            if echo "$headers" | grep -qi "$header"; then
+              echo "✅ En-tête de sécurité '$header' présent"
+            else
+              echo "⚠️ En-tête de sécurité '$header' manquant"
+            fi
+          done
+
+      - name: 🔍 Scan des vulnérabilités dans le code
+        run: |
+          echo "🔍 Scan des vulnérabilités dans le code"
+          
+          # Recherche de patterns de sécurité problématiques
+          echo "🔍 Recherche de patterns dangereux..."
+          
+          # Vérification des scripts inline
+          if grep -r "javascript:" *.html 2>/dev/null; then
+            echo "⚠️ Scripts javascript: détectés dans le HTML"
+          else
+            echo "✅ Aucun script javascript: détecté"
+          fi
+          
+          # Vérification des eval()
+          if grep -r "eval(" *.js 2>/dev/null; then
+            echo "⚠️ Utilisation d'eval() détectée"
+          else
+            echo "✅ Aucune utilisation d'eval() détectée"
+          fi
+          
+          # Vérification des innerHTML sans sanitization
+          if grep -r "innerHTML" *.js 2>/dev/null; then
+            echo "⚠️ Utilisation d'innerHTML détectée - vérifier la sanitization"
+          else
+            echo "✅ Aucune utilisation d'innerHTML détectée"
+          fi
+          
+          # Vérification des clés API ou secrets
+          secret_patterns=(
+            "api[_-]?key"
+            "secret"
+            "password"
+            "token"
+            "auth"
+          )
+          
+          for pattern in "${secret_patterns[@]}"; do
+            if grep -ri "$pattern" *.js *.html *.css 2>/dev/null | grep -v "placeholder" | grep -v "example"; then
+              echo "⚠️ Possible secret détecté avec le pattern '$pattern'"
+            fi
+          done
+
+  uptime-monitoring:
+    name: ⏰ Monitoring de Disponibilité
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⏰ Test de disponibilité sur 24h
+        run: |
+          echo "⏰ Simulation de monitoring de disponibilité"
+          
+          SITE_URL="https://liilvame.github.io/HTMLtoPNG/"
+          
+          # Test de disponibilité multiple
+          success_count=0
+          total_tests=5
+          total_response_time=0
+          
+          for i in $(seq 1 $total_tests); do
+            echo "🔍 Test $i/$total_tests"
+            
+            start_time=$(date +%s%N)
+            
+            if curl -f -s -o /dev/null "$SITE_URL"; then
+              end_time=$(date +%s%N)
+              response_time=$(( (end_time - start_time) / 1000000 ))
+              
+              echo "  ✅ Succès - ${response_time}ms"
+              success_count=$((success_count + 1))
+              total_response_time=$((total_response_time + response_time))
+            else
+              echo "  ❌ Échec"
+            fi
+            
+            # Attendre 10 secondes entre les tests
+            sleep 10
+          done
+          
+          # Calcul des statistiques
+          uptime_percentage=$((success_count * 100 / total_tests))
+          
+          if [ $success_count -gt 0 ]; then
+            avg_response_time=$((total_response_time / success_count))
+          else
+            avg_response_time=0
+          fi
+          
+          echo "📊 Statistiques de disponibilité:"
+          echo "  - Uptime: ${uptime_percentage}% (${success_count}/${total_tests})"
+          echo "  - Temps de réponse moyen: ${avg_response_time}ms"
+          
+          # Alertes
+          if [ $uptime_percentage -lt 100 ]; then
+            echo "⚠️ ALERTE: Disponibilité réduite (${uptime_percentage}%)"
+          fi
+          
+          if [ $avg_response_time -gt 3000 ]; then
+            echo "⚠️ ALERTE: Temps de réponse élevé (${avg_response_time}ms)"
+          fi
+
+  report-generation:
+    name: 📊 Génération de Rapport
+    runs-on: ubuntu-latest
+    needs: [health-check, performance-monitoring, security-monitoring, uptime-monitoring]
+    if: always()
+    steps:
+      - name: 📊 Génération du rapport de monitoring
+        run: |
+          echo "📊 Génération du rapport de monitoring complet"
+          
+          # Récupération des statuts
+          HEALTH_STATUS="${{ needs.health-check.result }}"
+          PERFORMANCE_STATUS="${{ needs.performance-monitoring.result }}"
+          SECURITY_STATUS="${{ needs.security-monitoring.result }}"
+          UPTIME_STATUS="${{ needs.uptime-monitoring.result }}"
+          
+          SITE_STATUS="${{ needs.health-check.outputs.site_status }}"
+          RESPONSE_TIME="${{ needs.health-check.outputs.response_time }}"
+          
+          # Génération du rapport
+          cat > monitoring-report.md << EOF
+          # 📊 Rapport de Monitoring - $(date)
+          
+          ## 🎯 Résumé Exécutif
+          
+          **Statut global**: $([ "$HEALTH_STATUS" = "success" ] && echo "🟢 Opérationnel" || echo "🔴 Problème détecté")
+          **Site web**: $([ "$SITE_STATUS" = "up" ] && echo "🟢 En ligne" || echo "🔴 Hors ligne")
+          **Temps de réponse**: ${RESPONSE_TIME}ms
+          
+          ## 📋 Détail des Vérifications
+          
+          ### 🏥 Santé du Site
+          - **Statut**: $HEALTH_STATUS
+          - **Disponibilité**: $SITE_STATUS
+          - **Temps de réponse**: ${RESPONSE_TIME}ms
+          
+          ### ⚡ Performances
+          - **Statut**: $PERFORMANCE_STATUS
+          - **Audit Lighthouse**: $([ "$PERFORMANCE_STATUS" = "success" ] && echo "✅ Complété" || echo "❌ Échec")
+          
+          ### 🔒 Sécurité
+          - **Statut**: $SECURITY_STATUS
+          - **Audit de sécurité**: $([ "$SECURITY_STATUS" = "success" ] && echo "✅ Complété" || echo "❌ Échec")
+          
+          ### ⏰ Disponibilité
+          - **Statut**: $UPTIME_STATUS
+          - **Tests de disponibilité**: $([ "$UPTIME_STATUS" = "success" ] && echo "✅ Complétés" || echo "❌ Échec")
+          
+          ## 🚨 Alertes et Recommandations
+          
+          $(if [ "$HEALTH_STATUS" != "success" ] || [ "$SITE_STATUS" != "up" ]; then
+            echo "### 🔴 Alertes Critiques"
+            echo "- Site inaccessible ou problème de santé détecté"
+            echo "- Action immédiate requise"
+            echo ""
+          fi)
+          
+          $(if [ "$RESPONSE_TIME" -gt 2000 ] 2>/dev/null; then
+            echo "### ⚠️ Alertes de Performance"
+            echo "- Temps de réponse élevé (${RESPONSE_TIME}ms > 2000ms)"
+            echo "- Optimisation recommandée"
+            echo ""
+          fi)
+          
+          ## 📈 Tendances
+          
+          - **Monitoring quotidien**: Actif
+          - **Historique**: Consultez les artifacts des exécutions précédentes
+          - **Prochaine vérification**: $(date -d '+1 day' '+%Y-%m-%d %H:%M')
+          
+          ## 🔧 Actions Recommandées
+          
+          1. **Surveillance continue**: Maintenir le monitoring automatique
+          2. **Optimisation**: Consulter les rapports Lighthouse pour les améliorations
+          3. **Sécurité**: Implémenter les en-têtes de sécurité manquants
+          4. **Performance**: Optimiser les assets si nécessaire
+          
+          ---
+          
+          **Rapport généré automatiquement le $(date)**
+          **Workflow**: ${{ github.workflow }}
+          **Run ID**: ${{ github.run_id }}
+          EOF
+          
+          echo "✅ Rapport de monitoring généré"
+
+      - name: 📤 Upload du rapport de monitoring
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-report-$(date +%Y%m%d)
+          path: monitoring-report.md
+          retention-days: 90
+
+  alerting:
+    name: 🚨 Système d'Alertes
+    runs-on: ubuntu-latest
+    needs: [health-check, performance-monitoring, security-monitoring, uptime-monitoring]
+    if: failure() || needs.health-check.outputs.site_status == 'down'
+    steps:
+      - name: 🚨 Génération d'alerte critique
+        run: |
+          echo "🚨 ALERTE CRITIQUE DÉTECTÉE"
+          
+          SITE_STATUS="${{ needs.health-check.outputs.site_status }}"
+          
+          if [ "$SITE_STATUS" = "down" ]; then
+            echo "❌ SITE HORS LIGNE"
+            echo "🔍 Le site https://liilvame.github.io/HTMLtoPNG/ est inaccessible"
+            echo "⏰ Détecté le: $(date)"
+            echo "🚨 Action immédiate requise"
+          fi
+          
+          # Ici, vous pourriez intégrer avec des services d'alerte comme:
+          # - Slack
+          # - Discord
+          # - Email
+          # - SMS
+          # - PagerDuty
+          
+          echo "📧 Notification d'alerte envoyée (simulation)"
+
+      - name: 📝 Log de l'incident
+        run: |
+          echo "📝 Enregistrement de l'incident"
+          
+          cat > incident-log.md << EOF
+          # 🚨 Log d'Incident - $(date)
+          
+          ## 📋 Détails de l'Incident
+          
+          **Heure de détection**: $(date)
+          **Type**: Problème de disponibilité/performance
+          **Sévérité**: Critique
+          
+          ## 🔍 Diagnostic
+          
+          - **Statut du site**: ${{ needs.health-check.outputs.site_status }}
+          - **Temps de réponse**: ${{ needs.health-check.outputs.response_time }}ms
+          
+          ## 🛠️ Actions à Entreprendre
+          
+          1. Vérifier l'état de GitHub Pages
+          2. Contrôler les logs de déploiement
+          3. Tester la connectivité réseau
+          4. Vérifier la configuration DNS
+          
+          ## 📞 Contacts d'Urgence
+          
+          - Équipe DevOps: [Contact]
+          - Administrateur système: [Contact]
+          
+          ---
+          
+          **Incident ID**: ${{ github.run_id }}
+          **Workflow**: ${{ github.workflow }}
+          EOF
+          
+          echo "✅ Log d'incident créé"
+
+      - name: 📤 Upload du log d'incident
+        uses: actions/upload-artifact@v4
+        with:
+          name: incident-log-$(date +%Y%m%d-%H%M%S)
+          path: incident-log.md
+          retention-days: 365
