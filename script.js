@@ -3888,8 +3888,19 @@ HTMLtoPNGConverter.prototype.expandPreview = function() {
     
     if (previewFrame && previewExpandModal && previewExpandFrame) {
         // Copy the current preview content to the expanded modal
-        previewExpandFrame.src = previewFrame.src;
-        previewExpandFrame.srcdoc = previewFrame.srcdoc;
+        // Clear any existing content first
+        previewExpandFrame.src = '';
+        previewExpandFrame.srcdoc = '';
+        
+        // Copy the content - prioritize srcdoc over src
+        if (previewFrame.srcdoc) {
+            previewExpandFrame.srcdoc = previewFrame.srcdoc;
+        } else if (previewFrame.src) {
+            previewExpandFrame.src = previewFrame.src;
+        } else {
+            // If no content, show a message
+            previewExpandFrame.srcdoc = '<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,sans-serif;color:#666;"><div>Aucun contenu à afficher. Veuillez d\'abord générer un aperçu.</div></body></html>';
+        }
         
         // Show the modal
         previewExpandModal.classList.add('active');
