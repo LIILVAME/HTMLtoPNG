@@ -232,6 +232,12 @@ class HTMLtoPNGConverter {
             input.classList.remove('active');
         });
         document.getElementById(`${format}Input`).classList.add('active');
+        
+        // Update preview container format
+        const previewContainer = document.querySelector('.preview-container');
+        if (previewContainer) {
+            previewContainer.setAttribute('data-format', format);
+        }
     }
 
     setupPresets() {
@@ -261,6 +267,24 @@ class HTMLtoPNGConverter {
             document.getElementById('heightInput').value = preset.height;
             this.updatePreviewSize();
             this.updatePreview(); // Refresh preview with new scaling
+            
+            // Update preview container preset
+            const previewContainer = document.querySelector('.preview-container');
+            if (previewContainer) {
+                previewContainer.setAttribute('data-preset', presetName);
+                
+                // Add specific classes based on preset type
+                previewContainer.classList.remove('mobile-preset', 'tablet-preset', 'desktop-preset', 'social-preset');
+                if (presetName === 'mobile') {
+                    previewContainer.classList.add('mobile-preset');
+                } else if (presetName === 'tablet') {
+                    previewContainer.classList.add('tablet-preset');
+                } else if (presetName === 'desktop') {
+                    previewContainer.classList.add('desktop-preset');
+                } else if (presetName.includes('social') || presetName.includes('instagram') || presetName.includes('facebook') || presetName.includes('twitter') || presetName.includes('linkedin') || presetName.includes('youtube')) {
+                    previewContainer.classList.add('social-preset');
+                }
+            }
             
             // Remove active state from all preset buttons
             document.querySelectorAll('.preset-btn, .social-preset-btn').forEach(btn => {

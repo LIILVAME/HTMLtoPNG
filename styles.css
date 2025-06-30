@@ -2314,6 +2314,96 @@ body {
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
 }
 
+/* Preset-specific styles */
+.preview-container.mobile-preset {
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 25px;
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #667eea, #764ba2) border-box;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+.preview-container.mobile-preset .preview-frame {
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.preview-container.tablet-preset {
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 20px;
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #f093fb, #f5576c) border-box;
+    box-shadow: 0 10px 30px rgba(240, 147, 251, 0.15);
+}
+
+.preview-container.tablet-preset .preview-frame {
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.preview-container.desktop-preset {
+    border-radius: 12px;
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #4facfe, #00f2fe) border-box;
+    box-shadow: 0 12px 35px rgba(79, 172, 254, 0.15);
+}
+
+.preview-container.desktop-preset .preview-frame {
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.preview-container.social-preset {
+    border-radius: 18px;
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #fa709a, #fee140, #667eea) border-box;
+    box-shadow: 0 15px 40px rgba(250, 112, 154, 0.2);
+}
+
+.preview-container.social-preset .preview-frame {
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* Format-specific adaptations */
+.preview-container[data-format="html"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #e34c26, #f06529) border-box;
+}
+
+.preview-container[data-format="css"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #1572b6, #33a9dc) border-box;
+}
+
+/* Specific social media preset styles */
+.preview-container[data-preset*="instagram"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045) border-box;
+}
+
+.preview-container[data-preset*="facebook"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #1877f2, #42a5f5) border-box;
+}
+
+.preview-container[data-preset*="twitter"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #1da1f2, #0d8bd9) border-box;
+}
+
+.preview-container[data-preset*="linkedin"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #0077b5, #00a0dc) border-box;
+}
+
+.preview-container[data-preset*="youtube"] {
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                linear-gradient(135deg, #ff0000, #cc0000) border-box;
+}
+
 /* Loading Animation for Preview */
 .preview-loading {
     position: absolute;
@@ -2370,6 +2460,26 @@ body {
         min-height: 300px;
         padding: 15px;
         margin: 15px 0;
+    }
+    
+    .preview-container.mobile-preset {
+        max-width: 100%;
+        margin: 10px 0;
+        border-radius: 20px;
+    }
+    
+    .preview-container.tablet-preset {
+        max-width: 100%;
+        margin: 10px 0;
+        border-radius: 16px;
+    }
+    
+    .preview-container.desktop-preset {
+        border-radius: 12px;
+    }
+    
+    .preview-container.social-preset {
+        border-radius: 15px;
     }
     
     .preview-placeholder {
