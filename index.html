@@ -563,8 +563,22 @@
     <script>
         // Initialize authentication UI
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if this is demo mode (URL parameter or localStorage flag)
+            const urlParams = new URLSearchParams(window.location.search);
+            const isDemoMode = urlParams.get('demo') === 'true' || localStorage.getItem('demo_mode') === 'true';
+            
             // Initialize auth manager
             window.authManager = new AuthManager();
+            
+            // If not in demo mode and not logged in, redirect to landing page
+            if (!isDemoMode && !window.authManager.isLoggedIn()) {
+                // Check if user has a valid token
+                const userToken = localStorage.getItem('user_token');
+                if (!userToken) {
+                    window.location.href = 'landing.html';
+                    return;
+                }
+            }
             
             // Setup login button
             const loginBtn = document.getElementById('loginBtn');
@@ -588,6 +602,26 @@
                 // User is not logged in, show login button
                 authButtons.style.display = 'flex';
                 userInfo.style.display = 'none';
+                
+                // If in demo mode, show demo indicator
+                if (isDemoMode) {
+                    const demoIndicator = document.createElement('div');
+                    demoIndicator.style.cssText = `
+                        position: fixed;
+                        top: 10px;
+                        right: 10px;
+                        background: #ff6b6b;
+                        color: white;
+                        padding: 8px 15px;
+                        border-radius: 20px;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                        z-index: 1000;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    `;
+                    demoIndicator.textContent = 'MODE DÉMO';
+                    document.body.appendChild(demoIndicator);
+                }
             }
             
             // Login button click handler

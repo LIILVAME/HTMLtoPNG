@@ -193,9 +193,32 @@
             background: white;
             color: #333;
         }
+        
+        .back-to-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+        
+        .back-to-home:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
+    <!-- Back to Home -->
+    <a href="landing.html" class="back-to-home">
+        <i class="fas fa-arrow-left"></i>
+        <span>Retour à l'accueil</span>
+    </a>
+    
     <!-- Language Selector -->
     <div class="language-selector">
         <select id="languageSelect">
@@ -248,6 +271,10 @@
                 <p style="text-align: center; margin: 0;">
                     <span data-translate="login_no_account">Pas de compte ?</span>
                     <a href="#" class="signup-link" id="signupLink" data-translate="login_signup">S'inscrire</a>
+                </p>
+                
+                <p style="text-align: center; margin-top: 15px;">
+                    <a href="index.html" class="signup-link">Continuer sans compte (Démo)</a>
                 </p>
             </form>
         </div>
