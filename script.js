@@ -26,6 +26,9 @@ class HTMLtoPNGConverter {
         // Initialize Lazy Loader for performance
         this.initializeLazyLoader();
         
+        // Initialize API Services
+        this.initializeAPIServices();
+        
         // Initialize Phase 2 Features
         this.initializeImageManager();
         this.initializeHistoryManager();
@@ -43,13 +46,6 @@ class HTMLtoPNGConverter {
         this.initializeOnboarding();
         this.initializeProgressTracking();
         this.initializeMicroInteractions();
-        
-        // Initialize Phase 2 Features
-        this.initializeImageManager();
-        this.initializeHistoryManager();
-        this.initializeTemplateManager();
-        this.initializeSocialShare();
-        this.initializeQuickToolbar();
     }
 
     bindEvents() {
@@ -189,6 +185,29 @@ class HTMLtoPNGConverter {
         const templatesToggle = document.getElementById('templatesToggle');
         if (templatesToggle) {
             templatesToggle.addEventListener('click', () => this.toggleTemplates());
+        }
+
+        // External services event listeners
+        const unsplashBtn = document.getElementById('unsplashBtn');
+        const googleFontsBtn = document.getElementById('googleFontsBtn');
+        const iconifyBtn = document.getElementById('iconifyBtn');
+        const pexelsBtn = document.getElementById('pexelsBtn');
+        const colorApiBtn = document.getElementById('colorApiBtn');
+
+        if (unsplashBtn) {
+            unsplashBtn.addEventListener('click', () => this.openUnsplashModal());
+        }
+        if (googleFontsBtn) {
+            googleFontsBtn.addEventListener('click', () => this.openGoogleFontsModal());
+        }
+        if (iconifyBtn) {
+            iconifyBtn.addEventListener('click', () => this.openIconifyModal());
+        }
+        if (pexelsBtn) {
+            pexelsBtn.addEventListener('click', () => this.openPexelsModal());
+        }
+        if (colorApiBtn) {
+            colorApiBtn.addEventListener('click', () => this.openColorApiModal());
         }
     }
 
@@ -3497,6 +3516,283 @@ class WorkerManager {
             this.worker.postMessage({ type: 'ping' });
         }
     }
+}
+
+// Initialize API Services
+HTMLtoPNGConverter.prototype.initializeAPIServices = function() {
+    // Initialize API Manager
+    if (typeof APIManager !== 'undefined') {
+        this.apiManager = new APIManager();
+    }
+    
+    // Initialize External Services Manager
+    if (typeof ExternalServicesManager !== 'undefined') {
+        this.externalServices = new ExternalServicesManager();
+    }
+    
+    console.log('API Services initialized successfully');
+};
+
+// External Services Modal Methods
+HTMLtoPNGConverter.prototype.openUnsplashModal = function() {
+    this.createExternalServiceModal('unsplash', 'Unsplash Images', async (query) => {
+        if (this.externalServices && this.externalServices.unsplash) {
+            const images = await this.externalServices.unsplash.searchPhotos(query);
+            return images.map(img => ({
+                id: img.id,
+                url: img.urls.small,
+                fullUrl: img.urls.full,
+                description: img.description || img.alt_description,
+                author: img.user.name
+            }));
+        }
+        return [];
+    });
+};
+
+HTMLtoPNGConverter.prototype.openGoogleFontsModal = function() {
+    this.createExternalServiceModal('googlefonts', 'Google Fonts', async (query) => {
+        if (this.externalServices && this.externalServices.googleFonts) {
+            const fonts = await this.externalServices.googleFonts.searchFonts(query);
+            return fonts.map(font => ({
+                id: font.family,
+                name: font.family,
+                category: font.category,
+                variants: font.variants
+            }));
+        }
+        return [];
+    });
+};
+
+HTMLtoPNGConverter.prototype.openIconifyModal = function() {
+    this.createExternalServiceModal('iconify', 'Iconify Icons', async (query) => {
+        if (this.externalServices && this.externalServices.iconify) {
+            const icons = await this.externalServices.iconify.searchIcons(query);
+            return icons.map(icon => ({
+                id: icon,
+                name: icon,
+                svg: `https://api.iconify.design/${icon}.svg`
+            }));
+        }
+        return [];
+    });
+};
+
+HTMLtoPNGConverter.prototype.openPexelsModal = function() {
+    this.createExternalServiceModal('pexels', 'Pexels Images', async (query) => {
+        if (this.externalServices && this.externalServices.pexels) {
+            const images = await this.externalServices.pexels.searchPhotos(query);
+            return images.map(img => ({
+                id: img.id,
+                url: img.src.medium,
+                fullUrl: img.src.original,
+                description: img.alt,
+                author: img.photographer
+            }));
+        }
+        return [];
+    });
+};
+
+HTMLtoPNGConverter.prototype.openColorApiModal = function() {
+    this.createExternalServiceModal('colorapi', 'Color Palettes', async (query) => {
+        if (this.externalServices && this.externalServices.colorApi) {
+            const palettes = await this.externalServices.colorApi.generatePalette(query);
+            return palettes.map((color, index) => ({
+                id: index,
+                color: color,
+                hex: color,
+                name: `Color ${index + 1}`
+            }));
+        }
+        return [];
+    });
+};
+
+// Generic External Service Modal Creator
+HTMLtoPNGConverter.prototype.createExternalServiceModal = function(serviceType, title, searchFunction) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('externalServiceModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Create modal HTML
+    const modalHTML = `
+        <div id="externalServiceModal" class="modal" style="display: flex;">
+            <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                    <span class="close" id="closeExternalServiceModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="search-container" style="margin-bottom: 20px;">
+                        <input type="text" id="externalServiceSearch" placeholder="Search ${title.toLowerCase()}..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <button id="externalServiceSearchBtn" style="margin-top: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+                    </div>
+                    <div id="externalServiceResults" class="results-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;"></div>
+                    <div id="externalServiceLoading" style="display: none; text-align: center; padding: 20px;">Loading...</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Get modal elements
+    const modal = document.getElementById('externalServiceModal');
+    const closeBtn = document.getElementById('closeExternalServiceModal');
+    const searchInput = document.getElementById('externalServiceSearch');
+    const searchBtn = document.getElementById('externalServiceSearchBtn');
+    const resultsContainer = document.getElementById('externalServiceResults');
+    const loadingDiv = document.getElementById('externalServiceLoading');
+
+    // Close modal events
+    closeBtn.addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    // Search functionality
+    const performSearch = async () => {
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        loadingDiv.style.display = 'block';
+        resultsContainer.innerHTML = '';
+
+        try {
+            const results = await searchFunction(query);
+            loadingDiv.style.display = 'none';
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #666;">No results found</p>';
+                return;
+            }
+
+            results.forEach(item => {
+                const resultElement = this.createResultElement(serviceType, item);
+                resultsContainer.appendChild(resultElement);
+            });
+        } catch (error) {
+            console.error('Search error:', error);
+            loadingDiv.style.display = 'none';
+            resultsContainer.innerHTML = '<p style="text-align: center; color: #f44336;">Error loading results</p>';
+        }
+    };
+
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    // Focus search input
+    searchInput.focus();
+};
+
+// Create result element for different service types
+HTMLtoPNGConverter.prototype.createResultElement = function(serviceType, item) {
+    const div = document.createElement('div');
+    div.style.cssText = 'border: 1px solid #ddd; border-radius: 8px; padding: 10px; cursor: pointer; transition: transform 0.2s; background: white;';
+    div.addEventListener('mouseenter', () => div.style.transform = 'scale(1.02)');
+    div.addEventListener('mouseleave', () => div.style.transform = 'scale(1)');
+
+    switch (serviceType) {
+        case 'unsplash':
+        case 'pexels':
+            div.innerHTML = `
+                <img src="${item.url}" alt="${item.description}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;">
+                <p style="margin: 0; font-size: 12px; color: #666;">${item.description || 'No description'}</p>
+                <p style="margin: 4px 0 0 0; font-size: 10px; color: #999;">by ${item.author}</p>
+            `;
+            div.addEventListener('click', () => this.insertImageToCode(item.fullUrl, item.description));
+            break;
+
+        case 'googlefonts':
+            div.innerHTML = `
+                <h3 style="margin: 0 0 8px 0; font-family: '${item.name}', sans-serif; font-size: 18px;">${item.name}</h3>
+                <p style="margin: 0; font-size: 12px; color: #666;">${item.category}</p>
+                <p style="margin: 4px 0 0 0; font-size: 10px; color: #999;">${item.variants.length} variants</p>
+            `;
+            div.addEventListener('click', () => this.insertFontToCode(item.name));
+            break;
+
+        case 'iconify':
+            div.innerHTML = `
+                <img src="${item.svg}" alt="${item.name}" style="width: 60px; height: 60px; margin: 0 auto 8px; display: block;">
+                <p style="margin: 0; font-size: 12px; text-align: center; color: #666;">${item.name}</p>
+            `;
+            div.addEventListener('click', () => this.insertIconToCode(item.svg, item.name));
+            break;
+
+        case 'colorapi':
+            div.innerHTML = `
+                <div style="width: 100%; height: 60px; background-color: ${item.color}; border-radius: 4px; margin-bottom: 8px;"></div>
+                <p style="margin: 0; font-size: 12px; text-align: center; color: #666;">${item.hex}</p>
+                <p style="margin: 4px 0 0 0; font-size: 10px; text-align: center; color: #999;">${item.name}</p>
+            `;
+            div.addEventListener('click', () => this.insertColorToCode(item.hex));
+            break;
+    }
+
+    return div;
+};
+
+// Insert methods for different content types
+HTMLtoPNGConverter.prototype.insertImageToCode = function(imageUrl, alt) {
+    const htmlInput = document.getElementById('htmlInput');
+    if (htmlInput) {
+        const imageTag = `<img src="${imageUrl}" alt="${alt || 'Image'}" style="max-width: 100%; height: auto;">`;
+        const currentValue = htmlInput.value;
+        const cursorPos = htmlInput.selectionStart;
+        const newValue = currentValue.slice(0, cursorPos) + imageTag + currentValue.slice(cursorPos);
+        htmlInput.value = newValue;
+        this.updatePreview();
+        document.getElementById('externalServiceModal').remove();
+    }
+};
+
+HTMLtoPNGConverter.prototype.insertFontToCode = function(fontName) {
+    const cssInput = document.getElementById('cssInput');
+    if (cssInput) {
+        const fontImport = `@import url('https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@400;700&display=swap');\n`;
+        const fontRule = `\nbody { font-family: '${fontName}', sans-serif; }`;
+        cssInput.value = fontImport + cssInput.value + fontRule;
+        this.updatePreview();
+        document.getElementById('externalServiceModal').remove();
+    }
+};
+
+HTMLtoPNGConverter.prototype.insertIconToCode = function(iconUrl, iconName) {
+    const htmlInput = document.getElementById('htmlInput');
+    if (htmlInput) {
+        const iconTag = `<img src="${iconUrl}" alt="${iconName}" style="width: 24px; height: 24px; display: inline-block;">`;
+        const currentValue = htmlInput.value;
+        const cursorPos = htmlInput.selectionStart;
+        const newValue = currentValue.slice(0, cursorPos) + iconTag + currentValue.slice(cursorPos);
+        htmlInput.value = newValue;
+        this.updatePreview();
+        document.getElementById('externalServiceModal').remove();
+    }
+};
+
+HTMLtoPNGConverter.prototype.insertColorToCode = function(colorHex) {
+    const cssInput = document.getElementById('cssInput');
+    if (cssInput) {
+        const colorRule = `\n/* Color: ${colorHex} */\n.color-${colorHex.replace('#', '')} { color: ${colorHex}; }\n.bg-color-${colorHex.replace('#', '')} { background-color: ${colorHex}; }`;
+        cssInput.value += colorRule;
+        this.updatePreview();
+        document.getElementById('externalServiceModal').remove();
+    }
+};
+
+// Initialize the converter when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.converter = new HTMLtoPNGConverter();
+});
+
 }
 
 // Initialize the application when DOM is loaded
