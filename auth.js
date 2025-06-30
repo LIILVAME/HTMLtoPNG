@@ -65,12 +65,10 @@ class AuthManager {
             } catch (e) {
                 localStorage.removeItem('htmltopng_user');
             }
-        } else {
-            // If we're on main app and user is not logged in, redirect to login
-            if (!window.location.pathname.includes('login.html') && window.location.pathname !== '/') {
-                window.location.href = 'login.html';
-            }
         }
+        
+        // Update UI based on auth state
+        this.updateAuthUI();
     }
 
     async loginWithGoogle() {
@@ -92,7 +90,11 @@ class AuthManager {
             };
             
             this.setCurrentUser(user);
-            this.redirectToApp();
+            this.hideLoading();
+            // Close modal if it exists
+            if (typeof hideLoginModal === 'function') {
+                hideLoginModal();
+            }
             
         } catch (error) {
             this.hideLoading();
@@ -119,7 +121,11 @@ class AuthManager {
             };
             
             this.setCurrentUser(user);
-            this.redirectToApp();
+            this.hideLoading();
+            // Close modal if it exists
+            if (typeof hideLoginModal === 'function') {
+                hideLoginModal();
+            }
             
         } catch (error) {
             this.hideLoading();
@@ -154,7 +160,11 @@ class AuthManager {
             };
             
             this.setCurrentUser(user);
-            this.redirectToApp();
+            this.hideLoading();
+            // Close modal if it exists
+            if (typeof hideLoginModal === 'function') {
+                hideLoginModal();
+            }
             
         } catch (error) {
             this.hideLoading();
@@ -176,11 +186,10 @@ class AuthManager {
     logout() {
         this.currentUser = null;
         localStorage.removeItem('htmltopng_user');
-        window.location.href = 'login.html';
-    }
-
-    redirectToApp() {
-        window.location.href = 'index.html';
+        // Update UI to reflect logged out state
+        this.updateAuthUI();
+        // Reload the page to reset any user-specific data
+        window.location.reload();
     }
 
     showLoading(message) {
@@ -273,6 +282,36 @@ class AuthManager {
 
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    setCurrentUser(user) {
+        this.currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        
+        // Update UI elements
+        this.updateAuthUI();
+    }
+
+    updateAuthUI() {
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userAvatar = document.getElementById('userAvatar');
+        
+        if (this.isLoggedIn()) {
+            if (loginBtn) loginBtn.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'inline-block';
+            if (userInfo) userInfo.style.display = 'flex';
+            if (userName) userName.textContent = this.currentUser.name || this.currentUser.email;
+            if (userAvatar && this.currentUser.avatar) {
+                userAvatar.src = this.currentUser.avatar;
+            }
+        } else {
+            if (loginBtn) loginBtn.style.display = 'inline-block';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'none';
+        }
     }
 
     getCurrentUser() {

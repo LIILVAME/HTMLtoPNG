@@ -543,6 +543,56 @@
         </div>
     </footer>
 
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal" style="display: none;">
+        <div class="modal-content login-modal">
+            <div class="modal-header">
+                <h2>Se connecter</h2>
+                <button class="modal-close" onclick="hideLoginModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Social Login -->
+                <div class="social-login">
+                    <button class="social-btn google" id="googleLoginModal">
+                        <i class="fab fa-google"></i>
+                        <span>Continuer avec Google</span>
+                    </button>
+                    <button class="social-btn github" id="githubLoginModal">
+                        <i class="fab fa-github"></i>
+                        <span>Continuer avec GitHub</span>
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span>ou</span>
+                </div>
+                
+                <!-- Manual Login Form -->
+                <form id="loginFormModal" class="login-form">
+                    <div class="form-group">
+                        <label for="emailModal">Email</label>
+                        <input type="email" id="emailModal" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordModal">Mot de passe</label>
+                        <input type="password" id="passwordModal" name="password" required>
+                    </div>
+                    <button type="submit" class="login-btn-form">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Se connecter</span>
+                    </button>
+                </form>
+                
+                <div class="modal-footer">
+                    <p>Pas encore de compte ? <a href="#" id="signupLinkModal">S'inscrire</a></p>
+                    <p><a href="#" onclick="hideLoginModal(); localStorage.setItem('demo_mode', 'true'); window.location.reload();">Continuer sans compte (Démo)</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner">
@@ -618,7 +668,7 @@
             
             // Login button click handler
             loginBtn.addEventListener('click', () => {
-                window.location.href = 'login.html';
+                showLoginModal();
             });
             
             // Logout button click handler
@@ -628,7 +678,79 @@
                 // Refresh page to update UI
                 window.location.reload();
             });
+            
+            // Setup modal login events
+            setupModalLoginEvents();
         });
+        
+        // Modal functions
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function hideLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        function setupModalLoginEvents() {
+            // Google login modal
+            const googleBtnModal = document.getElementById('googleLoginModal');
+            if (googleBtnModal) {
+                googleBtnModal.addEventListener('click', async () => {
+                    hideLoginModal();
+                    await window.authManager.loginWithGoogle();
+                    window.location.reload();
+                });
+            }
+            
+            // GitHub login modal
+            const githubBtnModal = document.getElementById('githubLoginModal');
+            if (githubBtnModal) {
+                githubBtnModal.addEventListener('click', async () => {
+                    hideLoginModal();
+                    await window.authManager.loginWithGitHub();
+                    window.location.reload();
+                });
+            }
+            
+            // Manual login form modal
+            const loginFormModal = document.getElementById('loginFormModal');
+            if (loginFormModal) {
+                loginFormModal.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('emailModal').value;
+                    const password = document.getElementById('passwordModal').value;
+                    
+                    if (!email || !password) {
+                        alert('Veuillez remplir tous les champs');
+                        return;
+                    }
+                    
+                    hideLoginModal();
+                    
+                    // Simulate manual login
+                    const user = {
+                        id: 'manual_' + Date.now(),
+                        name: email.split('@')[0],
+                        email: email,
+                        provider: 'manual',
+                        avatar: 'data:image/svg+xml;base64,' + btoa('<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="#667eea"/><text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial" font-size="16" font-weight="bold">' + email.charAt(0).toUpperCase() + '</text></svg>')
+                    };
+                    
+                    window.authManager.setCurrentUser(user);
+                    window.location.reload();
+                });
+            }
+            
+            // Close modal when clicking outside
+            document.getElementById('loginModal').addEventListener('click', (e) => {
+                if (e.target.id === 'loginModal') {
+                    hideLoginModal();
+                }
+            });
+        }
     </script>
     
     <!-- API Services Scripts -->
