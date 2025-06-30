@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Device Styles</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 40px 0;
+        }
+        h2 {
+            color: #4ade80;
+            margin-bottom: 20px;
+        }
+        .demo-content {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test des Styles de Simulation d'Appareils</h1>
+    
+    <div class="test-section">
+        <h2>Mobile Preset</h2>
+        <div class="preview-container mobile-preset">
+            <div class="preview-frame">
+                <div class="demo-content">
+                    <h3>Mobile Device</h3>
+                    <p>Ceci simule l'apparence d'un téléphone mobile avec encoche et bouton home.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Tablet Preset</h2>
+        <div class="preview-container tablet-preset">
+            <div class="preview-frame">
+                <div class="demo-content">
+                    <h3>Tablet Device</h3>
+                    <p>Ceci simule l'apparence d'une tablette avec bouton home.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Desktop Preset</h2>
+        <div class="preview-container desktop-preset">
+            <div class="preview-frame">
+                <div class="demo-content">
+                    <h3>Desktop Device</h3>
+                    <p>Ceci simule l'apparence d'un écran d'ordinateur avec boutons de fenêtre et support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Instagram Preset</h2>
+        <div class="preview-container" data-preset="instagram-post">
+            <div class="preview-frame">
+                <div class="demo-content">
+                    <h3>Instagram Post</h3>
+                    <p>Ceci simule l'apparence d'un post Instagram avec dégradé caractéristique.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Facebook Preset</h2>
+        <div class="preview-container" data-preset="facebook-post">
+            <div class="preview-frame">
+                <div class="demo-content">
+                    <h3>Facebook Post</h3>
+                    <p>Ceci simule l'apparence d'un post Facebook avec couleurs de la marque.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Twitter Preset</h2>
+        <div class="preview-container" data-preset="twitter-post">
+            <div class="preview-frame">
+                <div class="demo-content">
+                    <h3>Twitter Post</h3>
+                    <p>Ceci simule l'apparence d'un post Twitter avec couleurs de la marque.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
