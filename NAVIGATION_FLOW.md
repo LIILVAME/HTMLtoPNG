@@ -2,17 +2,21 @@
 
 ## Vue d'ensemble
 
-Ce document décrit le nouveau flux de navigation mis en place pour l'application HTML to PNG Converter, avec une landing page d'accueil et un système d'authentification intégré.
+Ce document décrit le flux de navigation mis en place pour l'application HTML to PNG Converter, avec un système d'authentification intégré.
 
 ## Structure des Pages
 
-### 1. Landing Page (`landing.html`)
-- **Rôle** : Page d'accueil principale du site
+### 1. Application Principale (`index.html`)
+- **Rôle** : Page d'accueil principale et interface de conversion HTML to PNG
 - **Contenu** :
-  - Présentation de l'application
-  - Fonctionnalités principales
-  - Boutons d'action (Se connecter, S'inscrire, Essayer la démo)
-- **Redirection automatique** : Si l'utilisateur est déjà connecté, redirection vers `index.html`
+  - Interface de conversion complète
+  - Interface d'accueil pour nouveaux utilisateurs
+  - Boutons d'authentification ou informations utilisateur
+  - Indicateur de mode démo
+- **Contrôle d'accès** :
+  - Accessible à tous (aucune restriction)
+  - Interface adaptée selon le statut d'authentification
+  - Indicateur visuel en mode démo
 
 ### 2. Page de Connexion (`login.html`)
 - **Rôle** : Authentification des utilisateurs
@@ -22,15 +26,8 @@ Ce document décrit le nouveau flux de navigation mis en place pour l'applicatio
   - Lien d'inscription
   - Option "Continuer sans compte (Démo)"
 - **Navigation** :
-  - Bouton retour vers la landing page
+  - Bouton retour vers `index.html`
   - Redirection vers `index.html` après connexion réussie
-
-### 3. Application Principale (`index.html`)
-- **Rôle** : Interface principale de conversion HTML to PNG
-- **Contrôle d'accès** :
-  - Redirection automatique vers `landing.html` si non connecté (sauf mode démo)
-  - Indicateur visuel en mode démo
-- **Fonctionnalités** : Toutes les fonctionnalités de conversion existantes
 
 ## Flux de Navigation
 

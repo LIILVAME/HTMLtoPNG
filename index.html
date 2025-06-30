@@ -570,15 +570,7 @@
             // Initialize auth manager
             window.authManager = new AuthManager();
             
-            // If not in demo mode and not logged in, redirect to landing page
-            if (!isDemoMode && !window.authManager.isLoggedIn()) {
-                // Check if user has a valid token
-                const userToken = localStorage.getItem('user_token');
-                if (!userToken) {
-                    window.location.href = 'landing.html';
-                    return;
-                }
-            }
+            // Demo mode setup (no redirection needed)
             
             // Setup login button
             const loginBtn = document.getElementById('loginBtn');
