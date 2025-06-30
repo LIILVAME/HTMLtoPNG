@@ -1,0 +1,82 @@
+{
+  "app": {
+    "name": "HTML to PNG Converter",
+    "version": "1.0.0",
+    "description": "Convertisseur HTML vers PNG moderne et intuitif",
+    "author": "LIILVAME",
+    "repository": "https://github.com/LIILVAME/HTMLtoPNG"
+  },
+  "deployment": {
+    "environment": "production",
+    "platform": "github-pages",
+    "auto_deploy": true,
+    "branch": "main",
+    "build_command": "npm run build",
+    "output_directory": "dist"
+  },
+  "features": {
+    "multilingual_support": true,
+    "real_time_preview": true,
+    "custom_resolution": true,
+    "export_presets": true,
+    "social_sharing": true,
+    "history_tracking": true
+  },
+  "supported_languages": [
+    "fr",
+    "en",
+    "es",
+    "de",
+    "it",
+    "pt",
+    "ru",
+    "zh",
+    "ja",
+    "ar"
+  ],
+  "export_formats": [
+    "PNG",
+    "JPEG",
+    "WebP",
+    "PDF"
+  ],
+  "resolution_presets": [
+    {
+      "name": "Mobile",
+      "width": 375,
+      "height": 667
+    },
+    {
+      "name": "Tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "Desktop",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "name": "4K",
+      "width": 3840,
+      "height": 2160
+    }
+  ],
+  "performance": {
+    "max_file_size": "10MB",
+    "processing_timeout": 30000,
+    "cache_enabled": true,
+    "compression_quality": 0.9
+  },
+  "security": {
+    "content_security_policy": true,
+    "sanitize_html": true,
+    "validate_inputs": true
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": "none",
+    "track_conversions": false,
+    "track_errors": true
+  }
+}
