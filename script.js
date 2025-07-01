@@ -3192,13 +3192,7 @@ blockquote {
              this.cacheManager = new CacheManager(50, 300000); // 50 entrées, 5 min TTL
              console.log('📦 Cache Manager initialized');
              
-             // Afficher les stats de cache périodiquement en mode debug
-             if (window.location.search.includes('debug=true')) {
-                 setInterval(() => {
-                     const stats = this.cacheManager.getStats();
-                     console.log('📊 Cache Stats:', stats);
-                 }, 30000); // Toutes les 30 secondes
-             }
+             // Debug mode removed for production
          } catch (error) {
              console.warn('Cache Manager initialization failed:', error);
              this.cacheManager = null;
@@ -3211,7 +3205,7 @@ blockquote {
           const downloadBtn = document.getElementById('downloadBtn');
           if (downloadBtn) {
               downloadBtn.disabled = false;
-              console.log('✅ Download button enabled');
+              // Download button enabled
           }
           
           // Show social sharing options
@@ -3222,14 +3216,14 @@ blockquote {
       initializeLazyLoader() {
           try {
               this.lazyLoader = new LazyLoader();
-              console.log('🔄 Lazy Loader initialized');
+              // Lazy Loader initialized
               
               // Observer les éléments qui nécessitent un lazy loading
               this.setupLazyLoadingObservers();
               
               // Précharger les ressources critiques
               this.lazyLoader.preloadCritical(['color-picker']).then(() => {
-                  console.log('✅ Critical resources preloaded');
+                  // Critical resources preloaded
               });
               
           } catch (error) {
@@ -3249,7 +3243,7 @@ blockquote {
               }
           });
           
-          console.log(`👀 Observing ${lazyElements.length} elements for lazy loading`);
+          // Observing elements for lazy loading
       }
 
     // Enhanced conversion method using Web Worker
@@ -3327,7 +3321,7 @@ blockquote {
         if (typeof ImageManager !== 'undefined') {
             this.imageManager = new ImageManager();
             this.imageManager.init();
-            console.log('Image Manager initialized');
+            // Image Manager initialized
         }
     }
     
@@ -3338,7 +3332,7 @@ blockquote {
         if (typeof HistoryManager !== 'undefined') {
             this.historyManager = new HistoryManager();
             this.historyManager.init();
-            console.log('History Manager initialized');
+            // History Manager initialized
         }
     }
     
@@ -3349,7 +3343,7 @@ blockquote {
         if (typeof TemplateManager !== 'undefined') {
             this.templateManager = new TemplateManager();
             this.templateManager.init();
-            console.log('Template Manager initialized');
+            // Template Manager initialized
         }
     }
     
@@ -3361,7 +3355,7 @@ blockquote {
             this.socialShareManager = new SocialShareManager();
             this.socialShareManager.init();
             window.socialShareManager = this.socialShareManager; // Global access for HTML events
-            console.log('Social Share Manager initialized');
+            // Social Share Manager initialized
         }
     }
     

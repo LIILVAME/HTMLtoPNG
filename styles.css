@@ -968,7 +968,7 @@ body {
     border-radius: 50%;
     font-size: 0.7rem;
     font-weight: 600;
-    display: flex;
+    display: none; /* Hidden for production */
     align-items: center;
     justify-content: center;
     border: 2px solid white;
