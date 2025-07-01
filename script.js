@@ -262,6 +262,7 @@ class HTMLtoPNGConverter {
     setupPresets() {
         this.presets = {
             mobile: { width: 375, height: 667, scale: 0.4 },
+            iphone: { width: 375, height: 812, scale: 0.35 }, // iPhone X/11/12/13 dimensions
             tablet: { width: 768, height: 1024, scale: 0.7 },
             desktop: { width: 1920, height: 1080, scale: 1.0 },
             social: { width: 1200, height: 630, scale: 0.8 },
@@ -293,9 +294,11 @@ class HTMLtoPNGConverter {
                 previewContainer.setAttribute('data-preset', presetName);
                 
                 // Add specific classes based on preset type
-                previewContainer.classList.remove('mobile-preset', 'tablet-preset', 'desktop-preset', 'social-preset');
+                previewContainer.classList.remove('mobile-preset', 'iphone-preset', 'tablet-preset', 'desktop-preset', 'social-preset');
                 if (presetName === 'mobile') {
                     previewContainer.classList.add('mobile-preset');
+                } else if (presetName === 'iphone') {
+                    previewContainer.classList.add('iphone-preset');
                 } else if (presetName === 'tablet') {
                     previewContainer.classList.add('tablet-preset');
                 } else if (presetName === 'desktop') {
@@ -506,7 +509,7 @@ class HTMLtoPNGConverter {
         scaledCSS = responsiveCSS;
 
         // Add responsive meta tag injection for better mobile rendering
-        if (this.currentPreset === 'mobile') {
+        if (this.currentPreset === 'mobile' || this.currentPreset === 'iphone') {
             scaledCSS = `
                 /* Responsive scaling applied for mobile format */
                 * {
@@ -563,7 +566,7 @@ class HTMLtoPNGConverter {
             /* Mobile First Approach */
             @media screen and (max-width: 480px) {
                 body {
-                    font-size: ${currentPreset === 'mobile' ? '1em' : '0.9em'};
+                    font-size: ${(currentPreset === 'mobile' || currentPreset === 'iphone') ? '1em' : '0.9em'};
                     line-height: 1.4;
                 }
                 
@@ -736,39 +739,123 @@ class HTMLtoPNGConverter {
         const width = parseInt(document.getElementById('widthInput').value) || 800;
         const height = parseInt(document.getElementById('heightInput').value) || 600;
         const previewFrame = document.getElementById('previewFrame');
+        const previewContainer = document.querySelector('.preview-container');
         
-        if (previewFrame) {
-            const container = previewFrame.parentElement;
-            const containerWidth = container.clientWidth - 20; // Account for padding
-            const containerHeight = container.clientHeight - 20; // Account for padding
+        if (previewFrame && previewContainer) {
+            // Adapter la taille du container selon le preset
+            this.adaptContainerToPreset(previewContainer, width, height);
+            
+            // Calculer les dimensions optimales pour la prévisualisation
+            const containerRect = previewContainer.getBoundingClientRect();
+            const availableWidth = containerRect.width - 40; // Padding
+            const availableHeight = containerRect.height - 40; // Padding
             const aspectRatio = width / height;
             
-            let newWidth, newHeight;
+            let previewWidth, previewHeight;
             
-            // Calculate dimensions to fit container while maintaining aspect ratio
-            if (containerWidth / aspectRatio <= containerHeight) {
-                newWidth = Math.min(containerWidth, width);
-                newHeight = newWidth / aspectRatio;
+            // Calculer les dimensions pour s'adapter au container tout en gardant le ratio
+            if (availableWidth / aspectRatio <= availableHeight) {
+                previewWidth = Math.min(availableWidth, width * 0.8); // Max 80% de la taille réelle
+                previewHeight = previewWidth / aspectRatio;
             } else {
-                newHeight = Math.min(containerHeight, height);
-                newWidth = newHeight * aspectRatio;
+                previewHeight = Math.min(availableHeight, height * 0.8); // Max 80% de la taille réelle
+                previewWidth = previewHeight * aspectRatio;
             }
             
-            // Ensure minimum readable size
-            const minSize = 200;
-            if (newWidth < minSize) {
-                newWidth = minSize;
-                newHeight = minSize / aspectRatio;
+            // Taille minimale pour la lisibilité
+            const minSize = this.getMinSizeForPreset();
+            if (previewWidth < minSize) {
+                previewWidth = minSize;
+                previewHeight = minSize / aspectRatio;
             }
-            if (newHeight < minSize) {
-                newHeight = minSize;
-                newWidth = minSize * aspectRatio;
+            if (previewHeight < minSize) {
+                previewHeight = minSize;
+                previewWidth = minSize * aspectRatio;
             }
             
-            previewFrame.style.width = `${Math.round(newWidth)}px`;
-            previewFrame.style.height = `${Math.round(newHeight)}px`;
+            // Appliquer les dimensions de prévisualisation
+            previewFrame.style.width = `${Math.round(previewWidth)}px`;
+            previewFrame.style.height = `${Math.round(previewHeight)}px`;
             previewFrame.style.margin = 'auto';
             previewFrame.style.display = 'block';
+            
+            // Stocker les dimensions réelles pour l'export (inchangées)
+            previewFrame.setAttribute('data-real-width', width);
+            previewFrame.setAttribute('data-real-height', height);
+        }
+    }
+
+    adaptContainerToPreset(container, width, height) {
+        const preset = this.currentPreset || 'desktop';
+        
+        // Supprimer les styles inline précédents
+        container.style.width = '';
+        container.style.height = '';
+        container.style.maxWidth = '';
+        container.style.maxHeight = '';
+        
+        // Adapter selon le type de preset
+        switch (preset) {
+            case 'mobile':
+                container.style.maxWidth = '420px';
+                container.style.height = 'auto';
+                container.style.minHeight = '600px';
+                break;
+                
+            case 'iphone':
+                container.style.maxWidth = '400px';
+                container.style.height = 'auto';
+                container.style.minHeight = '700px';
+                break;
+                
+            case 'tablet':
+                container.style.maxWidth = '700px';
+                container.style.height = 'auto';
+                container.style.minHeight = '500px';
+                break;
+                
+            case 'desktop':
+                container.style.maxWidth = '100%';
+                container.style.height = 'auto';
+                container.style.minHeight = '400px';
+                break;
+                
+            default:
+                if (preset.includes('social') || preset.includes('instagram') || 
+                    preset.includes('facebook') || preset.includes('twitter') || 
+                    preset.includes('linkedin') || preset.includes('youtube')) {
+                    // Pour les presets sociaux, adapter selon les dimensions
+                    if (width <= 500 && height <= 500) {
+                        container.style.maxWidth = '450px';
+                        container.style.minHeight = '450px';
+                    } else {
+                        container.style.maxWidth = '600px';
+                        container.style.minHeight = '400px';
+                    }
+                } else {
+                    container.style.maxWidth = '100%';
+                    container.style.minHeight = '400px';
+                }
+                break;
+        }
+    }
+    
+    getMinSizeForPreset() {
+        const preset = this.currentPreset || 'desktop';
+        
+        switch (preset) {
+            case 'mobile':
+            case 'iphone':
+                return 180;
+            case 'tablet':
+                return 220;
+            case 'desktop':
+                return 250;
+            default:
+                if (preset.includes('social')) {
+                    return 150;
+                }
+                return 200;
         }
     }
 
@@ -871,17 +958,28 @@ class HTMLtoPNGConverter {
     async htmlToCanvas(html, width, height, quality) {
         console.log('🎬 Starting htmlToCanvas conversion...');
         return new Promise((resolve, reject) => {
+            // Utiliser les dimensions réelles pour l'export
+            const previewFrame = document.getElementById('previewFrame');
+            let realWidth = width, realHeight = height;
+            
+            if (previewFrame && previewFrame.hasAttribute('data-real-width') && previewFrame.hasAttribute('data-real-height')) {
+                realWidth = parseInt(previewFrame.getAttribute('data-real-width'));
+                realHeight = parseInt(previewFrame.getAttribute('data-real-height'));
+                console.log('📐 Using stored real dimensions for export:', { realWidth, realHeight });
+                console.log('📐 Preview dimensions were:', { width, height });
+            }
+            
             // Create a temporary iframe
-            console.log('📦 Creating iframe with dimensions:', { width, height, quality });
+            console.log('📦 Creating iframe with real dimensions:', { width: realWidth, height: realHeight, quality });
             const iframe = document.createElement('iframe');
             iframe.style.position = 'absolute';
             iframe.style.left = '-9999px';
-            iframe.style.width = `${width}px`;
-            iframe.style.height = `${height}px`;
+            iframe.style.width = `${realWidth}px`;
+            iframe.style.height = `${realHeight}px`;
             iframe.style.border = 'none';
             iframe.style.overflow = 'visible';
-            iframe.style.minWidth = `${width}px`;
-            iframe.style.minHeight = `${height}px`;
+            iframe.style.minWidth = `${realWidth}px`;
+            iframe.style.minHeight = `${realHeight}px`;
             
             document.body.appendChild(iframe);
             console.log('✅ Iframe added to DOM');
@@ -916,7 +1014,7 @@ class HTMLtoPNGConverter {
                                 html.clientWidth,
                                 html.scrollWidth,
                                 html.offsetWidth,
-                                width
+                                realWidth
                             ) + safetyMargin;
                             
                             const actualHeight = Math.max(
@@ -925,11 +1023,12 @@ class HTMLtoPNGConverter {
                                 html.clientHeight,
                                 html.scrollHeight,
                                 html.offsetHeight,
-                                height
+                                realHeight
                             ) + safetyMargin;
                             
                             console.log('📏 Content dimensions:', { 
-                                requested: { width, height },
+                                requested: { width: realWidth, height: realHeight },
+                                preview: { width, height },
                                 actual: { width: actualWidth, height: actualHeight },
                                 body: { scrollWidth: body.scrollWidth, scrollHeight: body.scrollHeight },
                                 html: { scrollWidth: html.scrollWidth, scrollHeight: html.scrollHeight }
@@ -3882,29 +3981,60 @@ HTMLtoPNGConverter.prototype.insertColorToCode = function(colorHex) {
 
 // Preview expand functionality
 HTMLtoPNGConverter.prototype.expandPreview = function() {
-    const previewFrame = document.getElementById('previewFrame');
+    console.log('🔍 expandPreview() appelée');
     const previewExpandModal = document.getElementById('previewExpandModal');
     const previewExpandFrame = document.getElementById('previewExpandFrame');
+    const htmlInput = document.getElementById('htmlInput');
+    const cssInput = document.getElementById('cssInput');
     
-    if (previewFrame && previewExpandModal && previewExpandFrame) {
-        // Copy the current preview content to the expanded modal
-        // Clear any existing content first
-        previewExpandFrame.src = '';
-        previewExpandFrame.srcdoc = '';
+    console.log('Elements trouvés:', {
+        previewExpandModal: !!previewExpandModal,
+        previewExpandFrame: !!previewExpandFrame,
+        htmlInput: !!htmlInput,
+        cssInput: !!cssInput
+    });
+    
+    if (previewExpandModal && previewExpandFrame && htmlInput && cssInput) {
+        const htmlCode = htmlInput.value.trim();
+        const cssCode = cssInput.value.trim();
         
-        // Copy the content - prioritize srcdoc over src
-        if (previewFrame.srcdoc) {
-            previewExpandFrame.srcdoc = previewFrame.srcdoc;
-        } else if (previewFrame.src) {
-            previewExpandFrame.src = previewFrame.src;
+        console.log('HTML Code length:', htmlCode.length);
+        console.log('CSS Code length:', cssCode.length);
+        
+        if (htmlCode) {
+            // Always regenerate content for expanded preview to avoid blob URL issues
+            console.log('🔄 Génération du contenu pour expanded frame...');
+            const combinedHTML = this.combineHTMLCSS(htmlCode, cssCode);
+            const blob = new Blob([combinedHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            // Clear any existing content first
+            previewExpandFrame.src = 'about:blank';
+            
+            // Set new content
+            setTimeout(() => {
+                previewExpandFrame.src = url;
+                console.log('✅ Contenu défini pour expanded frame:', url);
+                
+                // Clean up blob URL after load
+                previewExpandFrame.onload = () => {
+                    console.log('✅ Expanded frame chargé avec succès');
+                    URL.revokeObjectURL(url);
+                };
+                
+                previewExpandFrame.onerror = (error) => {
+                    console.error('❌ Erreur lors du chargement expanded frame:', error);
+                };
+            }, 100);
         } else {
-            // If no content, show a message
-            previewExpandFrame.srcdoc = '<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial,sans-serif;color:#666;"><div>Aucun contenu à afficher. Veuillez d\'abord générer un aperçu.</div></body></html>';
+            console.log('⚠️ Aucun contenu HTML à afficher');
+            previewExpandFrame.src = 'about:blank';
         }
         
         // Show the modal
         previewExpandModal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        console.log('✅ Modal affichée');
         
         // Add keyboard listener for ESC key
         this.handleExpandKeydown = (e) => {
@@ -3913,23 +4043,35 @@ HTMLtoPNGConverter.prototype.expandPreview = function() {
             }
         };
         document.addEventListener('keydown', this.handleExpandKeydown);
+    } else {
+        console.error('❌ Elements manquants pour expandPreview');
     }
 };
 
 HTMLtoPNGConverter.prototype.closeExpandedPreview = function() {
+    console.log('🔍 closeExpandedPreview() appelée');
     const previewExpandModal = document.getElementById('previewExpandModal');
+    const previewExpandFrame = document.getElementById('previewExpandFrame');
     
     if (previewExpandModal) {
         previewExpandModal.classList.remove('active');
         document.body.style.overflow = '';
+        
+        // Clear the expanded frame content
+        if (previewExpandFrame) {
+            previewExpandFrame.src = '';
+            previewExpandFrame.srcdoc = '';
+        }
         
         // Remove keyboard listener
         if (this.handleExpandKeydown) {
             document.removeEventListener('keydown', this.handleExpandKeydown);
             this.handleExpandKeydown = null;
         }
-     }
- };
+        
+        console.log('✅ Modal fermée');
+    }
+}
 
 // Initialize the converter when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

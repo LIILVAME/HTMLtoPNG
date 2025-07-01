@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .test-content {
+            text-align: center;
+            padding: 40px;
+        }
+        .debug-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-content">
+            <h1>🔍 Test de l'Aperçu</h1>
+            <p>Si vous voyez ce contenu, l'aperçu fonctionne correctement.</p>
+            
+            <div class="debug-info">
+                <strong>Debug Info:</strong><br>
+                Timestamp: <span id="timestamp"></span><br>
+                User Agent: <span id="userAgent"></span><br>
+                Window Size: <span id="windowSize"></span>
+            </div>
+            
+            <button onclick="testFunction()">Test Interaction</button>
+            <button onclick="changeColor()">Changer Couleur</button>
+        </div>
+    </div>
+    
+    <script>
+        function updateDebugInfo() {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 50) + '...';
+            document.getElementById('windowSize').textContent = window.innerWidth + 'x' + window.innerHeight;
+        }
+        
+        function testFunction() {
+            alert('✅ JavaScript fonctionne dans l\'aperçu!');
+        }
+        
+        function changeColor() {
+            const colors = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+            ];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.background = randomColor;
+        }
+        
+        // Update debug info every second
+        updateDebugInfo();
+        setInterval(updateDebugInfo, 1000);
+        
+        console.log('🚀 Debug preview loaded successfully');
+    </script>
+</body>
+</html>

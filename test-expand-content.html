@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Contenu pour Aperçu Élargi</title>
+</head>
+<body>
+    <h1>Instructions de Test</h1>
+    <p>Pour tester l'aperçu élargi :</p>
+    <ol>
+        <li>Copiez le HTML ci-dessous dans la zone HTML</li>
+        <li>Copiez le CSS ci-dessous dans la zone CSS</li>
+        <li>Cliquez sur le bouton d'agrandissement de l'aperçu</li>
+        <li>Vérifiez la console pour les messages de debug</li>
+    </ol>
+    
+    <h2>HTML à copier :</h2>
+    <pre><code>&lt;div class="test-container"&gt;
+    &lt;h1&gt;🎉 Test Aperçu Élargi&lt;/h1&gt;
+    &lt;p&gt;Si vous voyez ce contenu dans l'aperçu élargi, cela fonctionne !&lt;/p&gt;
+    &lt;div class="card"&gt;
+        &lt;h3&gt;Carte de Test&lt;/h3&gt;
+        &lt;p&gt;Contenu de la carte avec du style.&lt;/p&gt;
+        &lt;button&gt;Bouton Test&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    
+    <h2>CSS à copier :</h2>
+    <pre><code>body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    min-height: 100vh;
+}
+
+.test-container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}</code></pre>
+</body>
+</html>

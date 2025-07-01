@@ -867,6 +867,7 @@ body {
 }
 
 /* Quick Toolbar Styles */
+/* Barre d'outils rapide améliorée */
 .quick-toolbar {
     position: fixed;
     right: 20px;
@@ -874,30 +875,116 @@ body {
     transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     z-index: 999;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .toolbar-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--accent);
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
     color: white;
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.toolbar-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.toolbar-btn:hover::before {
+    left: 100%;
 }
 
 .toolbar-btn:hover {
-    background: #5a6fd8;
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transform: translateX(-8px) scale(1.1);
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a6fd8 0%, #764ba2 100%);
+}
+
+.toolbar-btn:active {
+    transform: translateX(-4px) scale(1.05);
+    transition: transform 0.1s ease;
+}
+
+/* Tooltips améliorés */
+.toolbar-btn::after {
+    content: attr(title);
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+}
+
+.toolbar-btn:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(-4px);
+}
+
+/* Badges de notification */
+.toolbar-btn .notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: #ff4757;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* États actifs */
+.toolbar-btn.active {
+    background: linear-gradient(135deg, #2ed573 0%, #1e90ff 100%);
+    box-shadow: 0 6px 24px rgba(46, 213, 115, 0.4);
 }
 
 /* Modal Styles for Phase 2 */
@@ -1044,19 +1131,44 @@ body {
 }
 
 .btn-icon {
-    background: none;
-    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border: 2px solid var(--border-color);
     color: var(--text-secondary);
-    padding: 8px;
-    border-radius: 4px;
+    padding: 12px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-icon:hover::before {
+    left: 100%;
 }
 
 .btn-icon:hover {
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
     color: white;
     border-color: var(--accent);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-icon:active {
+    transform: translateY(0) scale(0.98);
+    transition: transform 0.1s ease;
 }
 
 /* Responsive adjustments for Phase 2 */
@@ -1067,19 +1179,36 @@ body {
     }
     
     .quick-toolbar {
-        right: 10px;
+        right: 12px;
         top: auto;
-        bottom: 20px;
+        bottom: 24px;
         transform: none;
         flex-direction: row;
-        flex-wrap: wrap;
-        max-width: calc(100% - 20px);
+        padding: 12px;
+        border-radius: 20px;
+        max-width: calc(100% - 24px);
+        overflow-x: auto;
     }
     
     .toolbar-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 1rem;
+        width: 48px;
+        height: 48px;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    
+    .toolbar-btn:hover {
+        transform: translateY(-4px) scale(1.05);
+    }
+    
+    .toolbar-btn::after {
+        bottom: 60px;
+        right: 50%;
+        transform: translateX(50%);
+    }
+    
+    .toolbar-btn:hover::after {
+        transform: translateX(50%) translateY(-4px);
     }
     
     .template-grid {
@@ -1329,30 +1458,62 @@ body {
 }
 
 .template-btn {
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border: 2px solid var(--border-color);
     color: var(--text-primary);
-    padding: 12px 8px;
-    border-radius: 8px;
-    font-size: 12px;
+    padding: 16px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    min-height: 80px;
+    justify-content: center;
+}
+
+.template-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.template-btn:hover::before {
+    left: 100%;
 }
 
 .template-btn:hover {
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.template-btn:active {
+    transform: translateY(-1px) scale(1.02);
+    transition: transform 0.1s ease;
 }
 
 .template-btn i {
-    font-size: 16px;
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.template-btn:hover i {
+    transform: scale(1.2) rotate(5deg);
 }
 
 /* Social Share Styles */
@@ -1797,18 +1958,55 @@ body {
 }
 
 .preset-btn {
-    padding: 8px 16px;
+    padding: 12px 20px;
     border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 16px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.preset-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+}
+
+.preset-btn:hover::before {
+    left: 100%;
 }
 
 .preset-btn:hover {
     border-color: #667eea;
-    background: #f8f9ff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.preset-btn:active {
+    transform: translateY(-1px) scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+.preset-btn.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
 }
 
 /* Social Media Presets */
@@ -1838,28 +2036,54 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 8px;
+    padding: 16px 12px;
     border: 2px solid #e0e0e0;
-    background: white;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
-    min-height: 80px;
+    min-height: 90px;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.social-preset-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.social-preset-btn:hover::before {
+    left: 100%;
 }
 
 .social-preset-btn:hover {
     border-color: #667eea;
-    background: #f8f9ff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.25);
+}
+
+.social-preset-btn:active {
+    transform: translateY(-2px) scale(1.02);
+    transition: transform 0.1s ease;
 }
 
 .social-preset-btn.active {
     border-color: #667eea;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .social-preset-btn i {
@@ -1894,43 +2118,158 @@ body {
     opacity: 0.9;
 }
 
-/* Platform-specific colors */
-.social-preset-btn[data-preset*="instagram"]:hover i {
-    color: #E4405F;
+/* Platform-specific colors and effects */
+.social-preset-btn[data-preset*="instagram"]:hover {
+    background: linear-gradient(135deg, #E4405F 0%, #C13584 50%, #833AB4 100%) !important;
+    border-color: #E4405F !important;
+    box-shadow: 0 12px 30px rgba(228, 64, 95, 0.4) !important;
 }
 
-.social-preset-btn[data-preset*="facebook"]:hover i {
-    color: #1877F2;
+.social-preset-btn[data-preset*="facebook"]:hover {
+    background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%) !important;
+    border-color: #1877F2 !important;
+    box-shadow: 0 12px 30px rgba(24, 119, 242, 0.4) !important;
 }
 
-.social-preset-btn[data-preset*="twitter"]:hover i {
-    color: #1DA1F2;
+.social-preset-btn[data-preset*="twitter"]:hover {
+    background: linear-gradient(135deg, #1DA1F2 0%, #0D8BD9 100%) !important;
+    border-color: #1DA1F2 !important;
+    box-shadow: 0 12px 30px rgba(29, 161, 242, 0.4) !important;
 }
 
-.social-preset-btn[data-preset*="linkedin"]:hover i {
-    color: #0A66C2;
+.social-preset-btn[data-preset*="linkedin"]:hover {
+    background: linear-gradient(135deg, #0A66C2 0%, #004182 100%) !important;
+    border-color: #0A66C2 !important;
+    box-shadow: 0 12px 30px rgba(10, 102, 194, 0.4) !important;
 }
 
-.social-preset-btn[data-preset*="youtube"]:hover i {
-    color: #FF0000;
+.social-preset-btn[data-preset*="youtube"]:hover {
+    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%) !important;
+    border-color: #FF0000 !important;
+    box-shadow: 0 12px 30px rgba(255, 0, 0, 0.4) !important;
 }
 
-/* Pulse animation for preset buttons */
+/* Active states for platform-specific colors */
+.social-preset-btn[data-preset*="instagram"].active {
+    background: linear-gradient(135deg, #E4405F 0%, #C13584 50%, #833AB4 100%) !important;
+    border-color: #E4405F !important;
+}
+
+.social-preset-btn[data-preset*="facebook"].active {
+    background: linear-gradient(135deg, #1877F2 0%, #42A5F5 100%) !important;
+    border-color: #1877F2 !important;
+}
+
+.social-preset-btn[data-preset*="twitter"].active {
+    background: linear-gradient(135deg, #1DA1F2 0%, #0D8BD9 100%) !important;
+    border-color: #1DA1F2 !important;
+}
+
+.social-preset-btn[data-preset*="linkedin"].active {
+    background: linear-gradient(135deg, #0A66C2 0%, #004182 100%) !important;
+    border-color: #0A66C2 !important;
+}
+
+.social-preset-btn[data-preset*="youtube"].active {
+    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%) !important;
+    border-color: #FF0000 !important;
+}
+
+/* Enhanced animations for preset buttons */
 .preset-btn.pulse,
 .social-preset-btn.pulse {
-    animation: pulse 0.6s ease-in-out;
+    animation: enhancedPulse 0.8s ease-in-out;
 }
 
-@keyframes pulse {
+@keyframes enhancedPulse {
     0% {
-        transform: scale(1);
+        transform: scale(1) rotate(0deg);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+    25% {
+        transform: scale(1.02) rotate(1deg);
     }
     50% {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        transform: scale(1.08) rotate(0deg);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+    }
+    75% {
+        transform: scale(1.02) rotate(-1deg);
     }
     100% {
-        transform: scale(1);
+        transform: scale(1) rotate(0deg);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+}
+
+/* Ripple effect on click */
+.preset-btn,
+.social-preset-btn {
+    position: relative;
+}
+
+.preset-btn::after,
+.social-preset-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.preset-btn:active::after,
+.social-preset-btn:active::after {
+    width: 300px;
+    height: 300px;
+    transition: width 0.3s, height 0.3s;
+}
+
+/* Floating animation for buttons */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.preset-btn:hover,
+.social-preset-btn:hover {
+    animation: float 2s ease-in-out infinite;
+}
+
+/* Glow effect */
+.preset-btn.active,
+.social-preset-btn.active {
+    position: relative;
+}
+
+.preset-btn.active::before,
+.social-preset-btn.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+    border-radius: 18px;
+    z-index: -1;
+    animation: glowRotate 3s linear infinite;
+}
+
+@keyframes glowRotate {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
     }
 }
 
@@ -2071,28 +2410,73 @@ body {
 /* Convert Button */
 .convert-btn {
     width: 100%;
-    padding: 16px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 18px 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+    background-size: 200% 200%;
     color: white;
     border: none;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 15px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: gradientShift 3s ease infinite;
+}
+
+.convert-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.convert-btn:hover::before {
+    left: 100%;
 }
 
 .convert-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    animation-play-state: paused;
 }
 
 .convert-btn:active {
-    transform: translateY(0);
+    transform: translateY(-2px) scale(0.98);
+    transition: transform 0.1s ease;
+}
+
+.convert-btn i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.convert-btn:hover i {
+    transform: rotate(360deg) scale(1.2);
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 /* Preview Section */
@@ -2184,13 +2568,16 @@ body {
                 linear-gradient(135deg, var(--accent), #8b5cf6, #ec4899) border-box;
     border-radius: 20px;
     overflow: hidden;
-    margin: 20px 0;
+    margin: 20px auto;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .preview-container::before {
@@ -2356,6 +2743,59 @@ body {
     border-radius: 20px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     border: none;
+}
+
+/* iPhone Preset - Realistic iPhone simulation */
+.preview-container.iphone-preset {
+    max-width: 380px;
+    margin: 0 auto;
+    border-radius: 40px;
+    background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    padding: 20px 12px 25px 12px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+                inset 0 0 0 2px #333,
+                inset 0 0 0 3px #555,
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* iPhone notch */
+.preview-container.iphone-preset::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 25px;
+    background: #000;
+    border-radius: 0 0 15px 15px;
+    z-index: 10;
+    box-shadow: inset 0 -2px 4px rgba(255, 255, 255, 0.1);
+}
+
+/* iPhone speaker */
+.preview-container.iphone-preset::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    z-index: 11;
+}
+
+.preview-container.iphone-preset .preview-frame {
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: none;
+    overflow: hidden;
+    position: relative;
+    z-index: 5;
 }
 
 .preview-container.tablet-preset {
@@ -2768,6 +3208,18 @@ body {
                     inset 0 0 0 4px #555 !important;
     }
     
+    .preview-container.iphone-preset {
+        max-width: 380px !important;
+        margin: 10px auto !important;
+        border-radius: 40px !important;
+        background: linear-gradient(145deg, #1a1a1a, #2a2a2a) !important;
+        padding: 20px 12px 25px 12px !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4),
+                    inset 0 0 0 2px #333,
+                    inset 0 0 0 3px #555,
+                    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    }
+    
     .preview-container.tablet-preset {
         max-width: 650px !important;
         margin: 10px auto !important;
@@ -2832,8 +3284,60 @@ body {
         border-radius: 50% !important;
         background: transparent !important;
     }
-    
-    .preview-container.desktop-preset::before {
+}
+
+/* Styles spécifiques pour l'adaptation automatique des containers */
+.preview-container.mobile-preset {
+    max-width: 420px;
+    min-height: 600px;
+    margin: 20px auto;
+}
+
+.preview-container.iphone-preset {
+    max-width: 400px;
+    min-height: 700px;
+    margin: 20px auto;
+}
+
+.preview-container.tablet-preset {
+    max-width: 700px;
+    min-height: 500px;
+    margin: 20px auto;
+}
+
+.preview-container.desktop-preset {
+    max-width: 100%;
+    min-height: 400px;
+    margin: 20px auto;
+}
+
+.preview-container.social-preset {
+    max-width: 600px;
+    min-height: 400px;
+    margin: 20px auto;
+}
+
+/* Adaptation pour les petits presets sociaux */
+.preview-container[data-preset*="instagram"],
+.preview-container[data-preset*="facebook"],
+.preview-container[data-preset*="twitter"] {
+    max-width: 450px;
+    min-height: 450px;
+}
+
+/* Animation fluide lors du changement de preset */
+.preview-container {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preview-frame {
+     transition: all 0.3s ease;
+     max-width: 100%;
+     max-height: 100%;
+     object-fit: contain;
+ }
+     
+ .preview-container.desktop-preset::before {
         content: '' !important;
         position: absolute !important;
         top: 12px !important;
