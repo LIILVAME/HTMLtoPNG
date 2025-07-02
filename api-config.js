@@ -24,14 +24,7 @@ class APIConfig {
     getEnvVar(varName) {
         // En développement, on peut utiliser des valeurs par défaut
         if (this.environment === 'development') {
-            const defaults = {
-                'UNSPLASH_ACCESS_KEY': 'demo_key',
-                'GOOGLE_FONTS_API_KEY': 'demo_key',
-                'PEXELS_API_KEY': 'demo_key',
-                'CLOUDINARY_CLOUD_NAME': 'demo_cloud',
-                'CLOUDINARY_API_KEY': 'demo_key',
-                'CLOUDINARY_API_SECRET': 'demo_secret'
-            };
+            const defaults = {};
             return defaults[varName] || null;
         }
         
@@ -65,21 +58,7 @@ class APIConfig {
                         tokenExpiry: 24 * 60 * 60 * 1000 // 24 heures
                     }
                 },
-                external: {
-                    unsplash: {
-                        baseURL: 'https://api.unsplash.com',
-                        accessKey: 'demo_key',
-                        rateLimit: 50 // requêtes par heure
-                    },
-                    googleFonts: {
-                        baseURL: 'https://www.googleapis.com/webfonts/v1',
-                        apiKey: 'demo_key'
-                    },
-                    iconify: {
-                        baseURL: 'https://api.iconify.design',
-                        rateLimit: 100
-                    }
-                }
+
             },
             staging: {
                 api: {
@@ -104,21 +83,7 @@ class APIConfig {
                         tokenExpiry: 24 * 60 * 60 * 1000
                     }
                 },
-                external: {
-                    unsplash: {
-                        baseURL: 'https://api.unsplash.com',
-                        accessKey: this.getEnvVar('UNSPLASH_ACCESS_KEY') || 'staging_key',
-                        rateLimit: 50
-                    },
-                    googleFonts: {
-                        baseURL: 'https://www.googleapis.com/webfonts/v1',
-                        apiKey: this.getEnvVar('GOOGLE_FONTS_API_KEY') || 'staging_key'
-                    },
-                    iconify: {
-                        baseURL: 'https://api.iconify.design',
-                        rateLimit: 100
-                    }
-                }
+
             },
             production: {
                 api: {
@@ -143,32 +108,7 @@ class APIConfig {
                         tokenExpiry: 24 * 60 * 60 * 1000
                     }
                 },
-                external: {
-                    unsplash: {
-                        baseURL: 'https://api.unsplash.com',
-                        accessKey: this.getEnvVar('UNSPLASH_ACCESS_KEY'),
-                        rateLimit: 5000
-                    },
-                    googleFonts: {
-                        baseURL: 'https://www.googleapis.com/webfonts/v1',
-                        apiKey: this.getEnvVar('GOOGLE_FONTS_API_KEY')
-                    },
-                    iconify: {
-                        baseURL: 'https://api.iconify.design',
-                        rateLimit: 1000
-                    },
-                    pexels: {
-                        baseURL: 'https://api.pexels.com/v1',
-                        apiKey: this.getEnvVar('PEXELS_API_KEY'),
-                        rateLimit: 200
-                    },
-                    cloudinary: {
-                        baseURL: 'https://api.cloudinary.com/v1_1',
-                        cloudName: this.getEnvVar('CLOUDINARY_CLOUD_NAME'),
-                        apiKey: this.getEnvVar('CLOUDINARY_API_KEY'),
-                        apiSecret: this.getEnvVar('CLOUDINARY_API_SECRET')
-                    }
-                }
+
             }
         };
 
@@ -184,18 +124,14 @@ class APIConfig {
         return this.config.services;
     }
 
-    get externalConfig() {
-        return this.config.external;
-    }
+
 
     // Méthodes utilitaires
     getServiceURL(serviceName) {
         return this.config.services[serviceName]?.baseURL || null;
     }
 
-    getExternalServiceConfig(serviceName) {
-        return this.config.external[serviceName] || null;
-    }
+
 
     isServiceEnabled(serviceName) {
         return !!this.config.services[serviceName];
@@ -209,9 +145,7 @@ class APIConfig {
         return this.config.services[serviceName]?.supportedFormats || [];
     }
 
-    getRateLimit(serviceName) {
-        return this.config.external[serviceName]?.rateLimit || 100;
-    }
+
 
     // Configuration des endpoints spécifiques
     getEndpoints() {
@@ -280,29 +214,7 @@ class APIConfig {
                 versions: '/collaboration/versions'
             },
 
-            // Services externes
-            external: {
-                unsplash: {
-                    search: '/external/unsplash/search',
-                    photo: '/external/unsplash/photo/:id',
-                    download: '/external/unsplash/download/:id'
-                },
-                fonts: {
-                    list: '/external/fonts/list',
-                    search: '/external/fonts/search',
-                    preview: '/external/fonts/preview'
-                },
-                icons: {
-                    search: '/external/icons/search',
-                    collections: '/external/icons/collections',
-                    download: '/external/icons/download/:id'
-                },
-                colors: {
-                    palette: '/external/colors/palette',
-                    harmony: '/external/colors/harmony',
-                    extract: '/external/colors/extract'
-                }
-            },
+
 
             // Système
             system: {
@@ -354,8 +266,6 @@ class APIConfig {
             maxSize: 100, // 100 entrées max
             strategies: {
                 templates: 30 * 60 * 1000, // 30 minutes
-                fonts: 60 * 60 * 1000, // 1 heure
-                icons: 60 * 60 * 1000, // 1 heure
                 user: 10 * 60 * 1000 // 10 minutes
             }
         };

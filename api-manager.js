@@ -262,30 +262,7 @@ class APIManager {
         });
     }
 
-    // === MÉTHODES DE TEMPLATES ===
-    
-    async getTemplates(page = 1, limit = 20) {
-        return await this.makeRequest('GET', `${this.endpoints.templates.list}?page=${page}&limit=${limit}`);
-    }
 
-    async getTemplate(templateId) {
-        const endpoint = this.endpoints.templates.get.replace(':id', templateId);
-        return await this.makeRequest('GET', endpoint);
-    }
-
-    async createTemplate(templateData) {
-        return await this.makeRequest('POST', this.endpoints.templates.create, templateData);
-    }
-
-    async updateTemplate(templateId, templateData) {
-        const endpoint = this.endpoints.templates.update.replace(':id', templateId);
-        return await this.makeRequest('PUT', endpoint, templateData);
-    }
-
-    async deleteTemplate(templateId) {
-        const endpoint = this.endpoints.templates.delete.replace(':id', templateId);
-        return await this.makeRequest('DELETE', endpoint);
-    }
 
     // === MÉTHODES DE STOCKAGE CLOUD ===
     
@@ -326,23 +303,7 @@ class APIManager {
         return await this.makeRequest('GET', `${this.endpoints.analytics.usage}?period=${period}`);
     }
 
-    // === SERVICES EXTERNES ===
-    
-    async searchUnsplashImages(query, page = 1) {
-        return await this.makeRequest('GET', `${this.endpoints.external.unsplash}?q=${encodeURIComponent(query)}&page=${page}`);
-    }
 
-    async getAvailableFonts() {
-        return await this.makeRequest('GET', this.endpoints.external.fonts);
-    }
-
-    async searchIcons(query) {
-        return await this.makeRequest('GET', `${this.endpoints.external.icons}?q=${encodeURIComponent(query)}`);
-    }
-
-    async generateColorPalette(baseColor) {
-        return await this.makeRequest('POST', this.endpoints.external.colors, { baseColor });
-    }
 
     // === GESTION DES ERREURS ===
     
