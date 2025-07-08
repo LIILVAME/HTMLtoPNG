@@ -1718,12 +1718,10 @@ class HTMLtoPNGConverter {
     initializeMicroInteractions() {
         // Add pulse effect to buttons on click (excluding close buttons)
         document.addEventListener('click', (e) => {
-            // Stop processing if it's a close button
-            if (e.target.closest('[data-close-section]') || e.target.closest('[data-close-modal]')) {
-                return;
-            }
-            
-            if (e.target.matches('button, .btn, .preset-btn')) {
+            // Add pulse effect to buttons (excluding close buttons)
+            if (e.target.matches('button, .btn, .preset-btn') && 
+                !e.target.closest('[data-close-section]') && 
+                !e.target.closest('[data-close-modal]')) {
                 e.target.classList.add('pulse-on-click');
                 setTimeout(() => {
                     e.target.classList.remove('pulse-on-click');
