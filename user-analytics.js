@@ -54,6 +54,24 @@ class UserAnalytics {
         return userId;
     }
 
+    // Configuration du suivi heatmap
+    setupHeatmapTracking() {
+        // Initialiser les données de heatmap si pas déjà fait
+        if (!this.heatmapData) {
+            this.heatmapData = [];
+        }
+        
+        // Configuration des zones de suivi
+        this.heatmapConfig = {
+            maxDataPoints: 1000,
+            sampleRate: 0.1, // 10% des mouvements de souris
+            clickTracking: true,
+            scrollTracking: true
+        };
+        
+        console.log('🔥 Heatmap tracking configuré');
+    }
+
     // Tracker une vue de page
     trackPageView() {
         const pageView = {

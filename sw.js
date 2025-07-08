@@ -14,7 +14,6 @@ const STATIC_FILES = [
   '/script.js',
   '/image-manager.js',
   '/history-manager.js',
-  '/template-manager.js',
   '/social-share.js',
   '/auth.js',
   '/translations.js',
