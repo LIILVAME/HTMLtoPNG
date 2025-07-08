@@ -1718,10 +1718,13 @@ class HTMLtoPNGConverter {
     initializeMicroInteractions() {
         // Add pulse effect to buttons on click (excluding close buttons)
         document.addEventListener('click', (e) => {
-            // Add pulse effect to buttons (excluding close buttons)
-            if (e.target.matches('button, .btn, .preset-btn') && 
-                !e.target.closest('[data-close-section]') && 
-                !e.target.closest('[data-close-modal]')) {
+            // Skip if this is a close button - let the close handler deal with it
+            if (e.target.closest('[data-close-section]') || e.target.closest('[data-close-modal]')) {
+                return; // Don't add pulse effect, don't interfere
+            }
+            
+            // Add pulse effect to buttons
+            if (e.target.matches('button, .btn, .preset-btn')) {
                 e.target.classList.add('pulse-on-click');
                 setTimeout(() => {
                     e.target.classList.remove('pulse-on-click');
@@ -2110,12 +2113,17 @@ class HTMLtoPNGConverter {
      * Setup close section buttons
      */
     setupCloseSectionButtons() {
+        console.log('🔧 Setting up close section buttons...');
+        
         // Use event delegation for better performance and reliability
         document.addEventListener('click', (e) => {
+            console.log('👆 Click detected on:', e.target.tagName, e.target.className);
+            
             // Check if clicked element is a close button or inside one
             const closeButton = e.target.closest('[data-close-section]');
             
             if (closeButton) {
+                console.log('✅ Close button detected!', closeButton);
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -2123,16 +2131,26 @@ class HTMLtoPNGConverter {
                 const section = closeButton.closest('.feature-section');
                 
                 if (section) {
+                    console.log('📦 Section found:', section.id);
+                    
                     // Remove active class to trigger CSS transition
                     section.classList.remove('active');
+                    console.log('🎨 Active class removed');
                     
                     // Hide section after transition completes
                     setTimeout(() => {
                         section.style.display = 'none';
+                        console.log('👻 Section hidden:', section.id);
                     }, 300);
+                } else {
+                    console.log('❌ No parent section found!');
                 }
+            } else {
+                console.log('ℹ️ Not a close button');
             }
         }, true); // Use capture phase to ensure we catch the event first
+        
+        console.log('✅ Close section buttons setup complete');
     }
     
     /**
