@@ -590,13 +590,16 @@
                 const gridSize = 100;
                 const cellCounts = new Array(gridSize).fill(0);
                 
-                // Simuler la distribution des clics
+                // Distribution réelle des clics (sans données simulées)
                 clicks.forEach(click => {
-                    const x = Math.floor((click.x || Math.random()) * 10);
-                    const y = Math.floor((click.y || Math.random()) * 10);
-                    const index = y * 10 + x;
-                    if (index < gridSize) {
-                        cellCounts[index]++;
+                    // Utiliser uniquement les vraies coordonnées de clic
+                    if (click.x !== undefined && click.y !== undefined) {
+                        const x = Math.floor(click.x * 10);
+                        const y = Math.floor(click.y * 10);
+                        const index = y * 10 + x;
+                        if (index >= 0 && index < gridSize) {
+                            cellCounts[index]++;
+                        }
                     }
                 });
                 
