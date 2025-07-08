@@ -2110,22 +2110,31 @@ class HTMLtoPNGConverter {
      * Setup close section buttons
      */
     setupCloseSectionButtons() {
+        console.log('🔧 Setting up close section buttons');
         document.addEventListener('click', (e) => {
+            console.log('🖱️ Click detected on:', e.target);
+            
             // Check if the clicked element or its parent has the close attribute
             const closeButton = e.target.closest('[data-close-section]');
+            console.log('🔍 Close button found:', closeButton);
+            
             if (closeButton) {
+                console.log('✅ Processing close button click');
                 e.preventDefault();
                 e.stopPropagation();
                 
                 const section = closeButton.closest('.feature-section');
+                console.log('📦 Section found:', section);
                 
                 if (section) {
+                    console.log('🎯 Closing section:', section.id);
                     // Remove active class to trigger CSS transition
                     section.classList.remove('active');
                     
                     // Hide section after transition completes
                     setTimeout(() => {
                         section.style.display = 'none';
+                        console.log('✨ Section hidden:', section.id);
                     }, 300);
                 }
             }
