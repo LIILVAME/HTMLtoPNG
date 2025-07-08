@@ -2111,19 +2111,16 @@ class HTMLtoPNGConverter {
      */
     setupCloseSectionButtons() {
         console.log('🔧 Setting up close section buttons');
-        document.addEventListener('click', (e) => {
-            console.log('🖱️ Click detected on:', e.target);
-            
-            // Check if the clicked element or its parent has the close attribute
-            const closeButton = e.target.closest('[data-close-section]');
-            console.log('🔍 Close button found:', closeButton);
-            
-            if (closeButton) {
-                console.log('✅ Processing close button click');
+        
+        // Add specific event listeners to close buttons
+        document.querySelectorAll('[data-close-section]').forEach(button => {
+            console.log('🔗 Adding listener to close button:', button);
+            button.addEventListener('click', (e) => {
+                console.log('🖱️ Close button clicked:', e.target);
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const section = closeButton.closest('.feature-section');
+                const section = button.closest('.feature-section');
                 console.log('📦 Section found:', section);
                 
                 if (section) {
@@ -2137,6 +2134,14 @@ class HTMLtoPNGConverter {
                         console.log('✨ Section hidden:', section.id);
                     }, 300);
                 }
+            });
+        });
+        
+        // Also keep the global listener as backup
+        document.addEventListener('click', (e) => {
+            const closeButton = e.target.closest('[data-close-section]');
+            if (closeButton) {
+                console.log('🔄 Global listener triggered for close button');
             }
         });
     }
