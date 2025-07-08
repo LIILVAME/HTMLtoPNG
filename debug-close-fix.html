@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Close Button Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .feature-section {
+            display: none;
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-section.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .close-section {
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .close-section:hover {
+            background: #ff3742;
+            transform: scale(1.1);
+        }
+        
+        .test-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        
+        .debug-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 400px;
+            height: 200px;
+            background: #1e1e1e;
+            color: #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            border: 2px solid #333;
+        }
+        
+        .debug-console h4 {
+            color: #ffff00;
+            margin: 0 0 10px 0;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+        
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff0000; }
+        .log-warning { color: #ffaa00; }
+        .log-info { color: #00aaff; }
+    </style>
+</head>
+<body>
+    <div class="test-controls">
+        <h1>🔧 Debug des Boutons de Fermeture</h1>
+        <p>Testez les boutons de fermeture et observez les logs en temps réel.</p>
+        
+        <button class="test-btn" onclick="openSection('testSection1')">📂 Ouvrir Section 1</button>
+        <button class="test-btn" onclick="openSection('testSection2')">📂 Ouvrir Section 2</button>
+        <button class="test-btn" onclick="openSection('testSection3')">📂 Ouvrir Section 3</button>
+        <button class="test-btn" onclick="clearLogs()">🗑️ Effacer Logs</button>
+        <button class="test-btn" onclick="testCloseDirectly()">🎯 Test Direct</button>
+    </div>
+    
+    <!-- Test Sections -->
+    <div class="feature-section" id="testSection1">
+        <div class="section-header">
+            <h3>🔥 Section Test 1</h3>
+            <button class="close-section" data-close-section>✕</button>
+        </div>
+        <p>Ceci est la section de test 1. Le bouton X devrait fermer cette section.</p>
+        <p><strong>ID:</strong> testSection1</p>
+    </div>
+    
+    <div class="feature-section" id="testSection2">
+        <div class="section-header">
+            <h3>⚡ Section Test 2</h3>
+            <button class="close-section" data-close-section>✕</button>
+        </div>
+        <p>Ceci est la section de test 2. Le bouton X devrait fermer cette section.</p>
+        <p><strong>ID:</strong> testSection2</p>
+    </div>
+    
+    <div class="feature-section" id="testSection3">
+        <div class="section-header">
+            <h3>🚀 Section Test 3</h3>
+            <button class="close-section" data-close-section>✕</button>
+        </div>
+        <p>Ceci est la section de test 3. Le bouton X devrait fermer cette section.</p>
+        <p><strong>ID:</strong> testSection3</p>
+    </div>
+    
+    <div class="debug-console" id="debugConsole">
+        <h4>🐛 Console de Debug</h4>
+        <div id="logContainer"></div>
+    </div>
+    
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+            logCount++;
+            
+            // Limit logs to prevent memory issues
+            if (logCount > 100) {
+                container.removeChild(container.firstChild);
+                logCount--;
+            }
+        }
+        
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            logCount = 0;
+            log('Logs effacés', 'warning');
+        }
+        
+        function openSection(sectionId) {
+            log(`🔓 Tentative d'ouverture: ${sectionId}`, 'info');
+            const section = document.getElementById(sectionId);
+            if (section) {
+                // Close all other sections first
+                document.querySelectorAll('.feature-section').forEach(s => {
+                    if (s.id !== sectionId) {
+                        s.classList.remove('active');
+                        setTimeout(() => s.style.display = 'none', 300);
+                    }
+                });
+                
+                section.style.display = 'block';
+                setTimeout(() => {
+                    section.classList.add('active');
+                    log(`✅ Section ouverte: ${sectionId}`, 'success');
+                }, 10);
+            } else {
+                log(`❌ Section non trouvée: ${sectionId}`, 'error');
+            }
+        }
+        
+        function testCloseDirectly() {
+            log('🎯 Test de fermeture directe...', 'warning');
+            const activeSection = document.querySelector('.feature-section.active');
+            if (activeSection) {
+                log(`🎯 Section active trouvée: ${activeSection.id}`, 'info');
+                closeSection(activeSection);
+            } else {
+                log('🎯 Aucune section active trouvée', 'warning');
+            }
+        }
+        
+        function closeSection(section) {
+            if (!section) return;
+            
+            log(`🔒 Fermeture de la section: ${section.id}`, 'warning');
+            section.classList.remove('active');
+            
+            setTimeout(() => {
+                section.style.display = 'none';
+                log(`👻 Section masquée: ${section.id}`, 'success');
+            }, 300);
+        }
+        
+        // Setup close section buttons - Version de debug
+        function setupCloseSectionButtons() {
+            log('🔧 Initialisation des boutons de fermeture...', 'info');
+            
+            // Method 1: Direct event listeners on each close button
+            document.querySelectorAll('[data-close-section]').forEach((button, index) => {
+                log(`🔘 Bouton trouvé #${index + 1}`, 'info');
+                
+                button.addEventListener('click', (e) => {
+                    log(`🔘 Clic direct sur bouton #${index + 1}`, 'success');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const section = button.closest('.feature-section');
+                    if (section) {
+                        closeSection(section);
+                    } else {
+                        log('❌ Section parente non trouvée', 'error');
+                    }
+                });
+            });
+            
+            // Method 2: Event delegation (backup)
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('[data-close-section]')) {
+                    log('🎯 Délégation d\'événement activée', 'warning');
+                    const closeButton = e.target.closest('[data-close-section]');
+                    const section = closeButton.closest('.feature-section');
+                    if (section) {
+                        closeSection(section);
+                    }
+                }
+            }, true);
+            
+            log('✅ Configuration terminée', 'success');
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 DOM chargé, initialisation...', 'info');
+            setupCloseSectionButtons();
+            log('🎉 Initialisation terminée', 'success');
+        });
+        
+        // Global error handler
+        window.addEventListener('error', (e) => {
+            log(`💥 Erreur: ${e.message}`, 'error');
+        });
+        
+        log('📜 Script chargé', 'info');
+    </script>
+</body>
+</html>
