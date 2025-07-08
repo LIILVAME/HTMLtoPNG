@@ -508,6 +508,11 @@
                 const ctx = document.getElementById('activityChart').getContext('2d');
                 const { events } = this.data;
                 
+                // Détruire le graphique existant s'il existe
+                if (this.charts.activity) {
+                    this.charts.activity.destroy();
+                }
+                
                 // Grouper les événements par heure
                 const hourlyData = new Array(24).fill(0);
                 events.forEach(event => {
@@ -547,6 +552,11 @@
             createActionsChart() {
                 const ctx = document.getElementById('actionsChart').getContext('2d');
                 const { events } = this.data;
+                
+                // Détruire le graphique existant s'il existe
+                if (this.charts.actions) {
+                    this.charts.actions.destroy();
+                }
                 
                 // Compter les types d'actions
                 const actionCounts = {};
@@ -687,17 +697,14 @@
             }
             
             refresh() {
-                this.data = this.loadAnalyticsData();
-                this.init();
-                
-                // Détruire les anciens graphiques
+                // Détruire les anciens graphiques AVANT de les recréer
                 Object.values(this.charts).forEach(chart => {
                     if (chart) chart.destroy();
                 });
                 this.charts = {};
                 
-                // Recréer les graphiques
-                this.createCharts();
+                this.data = this.loadAnalyticsData();
+                this.init();
             }
         }
         
