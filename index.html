@@ -669,6 +669,100 @@
     <script src="api-config.js"></script>
     <script src="api-cache.js"></script>
     <script src="api-manager.js"></script>
+    
+    <!-- User Analytics -->
+    <script src="user-analytics.js"></script>
+    <script>
+        // Initialize analytics when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.UserAnalytics) {
+                window.userAnalytics = new UserAnalytics();
+                window.userAnalytics.init();
+                
+                // Track page view
+                window.userAnalytics.trackPageView('home');
+                
+                // Track conversion events
+                const convertBtn = document.getElementById('convertBtn');
+                if (convertBtn) {
+                    convertBtn.addEventListener('click', () => {
+                        window.userAnalytics.trackConversion('image_generation_started');
+                    });
+                }
+                
+                // Track download events
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('download-btn') || e.target.closest('.download-btn')) {
+                        window.userAnalytics.trackConversion('image_downloaded');
+                    }
+                });
+                
+                // Track template usage
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('template-btn') || e.target.closest('.template-btn')) {
+                        const templateName = e.target.dataset.template || 'unknown';
+                        window.userAnalytics.trackEvent('template_used', { template: templateName });
+                    }
+                });
+                
+                // Track preset usage
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('preset-btn') || e.target.closest('.preset-btn')) {
+                        const preset = e.target.dataset.preset || 'unknown';
+                        window.userAnalytics.trackEvent('preset_used', { preset: preset });
+                    }
+                });
+                
+                // Track social preset usage
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('social-preset-btn') || e.target.closest('.social-preset-btn')) {
+                        const preset = e.target.dataset.preset || 'unknown';
+                        window.userAnalytics.trackEvent('social_preset_used', { preset: preset });
+                    }
+                });
+                
+                // Track format changes
+                const formatSelect = document.getElementById('formatSelect');
+                if (formatSelect) {
+                    formatSelect.addEventListener('change', (e) => {
+                        window.userAnalytics.trackEvent('format_changed', { format: e.target.value });
+                    });
+                }
+                
+                // Track quality changes
+                const qualitySelect = document.getElementById('qualitySelect');
+                if (qualitySelect) {
+                    qualitySelect.addEventListener('change', (e) => {
+                        window.userAnalytics.trackEvent('quality_changed', { quality: e.target.value });
+                    });
+                }
+                
+                // Track authentication events
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', () => {
+                        window.userAnalytics.trackEvent('login_attempted');
+                    });
+                }
+                
+                // Track theme toggle
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', () => {
+                        window.userAnalytics.trackEvent('theme_toggled');
+                    });
+                }
+                
+                // Track language changes
+                const languageSelect = document.getElementById('languageSelect');
+                if (languageSelect) {
+                    languageSelect.addEventListener('change', (e) => {
+                        window.userAnalytics.trackEvent('language_changed', { language: e.target.value });
+                    });
+                }
+            }
+        });
+    </script>
 
     
     <!-- Production Scripts Only -->

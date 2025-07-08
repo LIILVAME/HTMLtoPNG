@@ -74,9 +74,13 @@
     "validate_inputs": true
   },
   "analytics": {
-    "enabled": false,
-    "provider": "none",
-    "track_conversions": false,
-    "track_errors": true
+    "enabled": true,
+    "provider": "custom",
+    "track_conversions": true,
+    "track_errors": true,
+    "track_user_journey": true,
+    "heatmap_enabled": true,
+    "session_recording": true,
+    "funnel_tracking": true
   }
 }
