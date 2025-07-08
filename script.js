@@ -34,7 +34,7 @@ class HTMLtoPNGConverter {
             // Initialize Phase 2 Features
             this.initializeImageManager();
             this.initializeHistoryManager();
-            this.initializeTemplateManager();
+
             this.initializeSocialShare();
             this.initializeQuickToolbar();
             
