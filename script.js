@@ -2110,40 +2110,29 @@ class HTMLtoPNGConverter {
      * Setup close section buttons
      */
     setupCloseSectionButtons() {
-        console.log('🔧 Setting up close section buttons');
-        
-        // Add specific event listeners to close buttons
-        document.querySelectorAll('[data-close-section]').forEach(button => {
-            console.log('🔗 Adding listener to close button:', button);
-            button.addEventListener('click', (e) => {
-                console.log('🖱️ Close button clicked:', e.target);
+        // Use event delegation for better performance and reliability
+        document.addEventListener('click', (e) => {
+            // Check if clicked element is a close button or inside one
+            const closeButton = e.target.closest('[data-close-section]');
+            
+            if (closeButton) {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const section = button.closest('.feature-section');
-                console.log('📦 Section found:', section);
+                // Find the parent feature section
+                const section = closeButton.closest('.feature-section');
                 
                 if (section) {
-                    console.log('🎯 Closing section:', section.id);
                     // Remove active class to trigger CSS transition
                     section.classList.remove('active');
                     
                     // Hide section after transition completes
                     setTimeout(() => {
                         section.style.display = 'none';
-                        console.log('✨ Section hidden:', section.id);
                     }, 300);
                 }
-            });
-        });
-        
-        // Also keep the global listener as backup
-        document.addEventListener('click', (e) => {
-            const closeButton = e.target.closest('[data-close-section]');
-            if (closeButton) {
-                console.log('🔄 Global listener triggered for close button');
             }
-        });
+        }, true); // Use capture phase to ensure we catch the event first
     }
     
     /**
