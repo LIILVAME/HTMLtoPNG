@@ -2086,19 +2086,9 @@ body {
 }
 
 /* Floating animation for buttons */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-6px);
-    }
-}
 
-.preset-btn:hover,
-.social-preset-btn:hover {
-    animation: float 2s ease-in-out infinite;
-}
+
+
 
 /* Glow effect */
 .preset-btn.active,
@@ -2106,28 +2096,9 @@ body {
     position: relative;
 }
 
-.preset-btn.active::before,
-.social-preset-btn.active::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
-    border-radius: 18px;
-    z-index: -1;
-    animation: glowRotate 3s linear infinite;
-}
 
-@keyframes glowRotate {
-    0% {
-        filter: hue-rotate(0deg);
-    }
-    100% {
-        filter: hue-rotate(360deg);
-    }
-}
+
+
 
 /* Enhanced Button Styles */
 .btn-enhanced {
@@ -2239,8 +2210,7 @@ body {
 .convert-btn {
     width: 100%;
     padding: 18px 28px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-    background-size: 200% 200%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 20px;
@@ -2257,7 +2227,6 @@ body {
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     text-transform: uppercase;
     letter-spacing: 1px;
-    animation: gradientShift 3s ease infinite;
 }
 
 .convert-btn::before {
@@ -2295,17 +2264,7 @@ body {
     transform: rotate(360deg) scale(1.2);
 }
 
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
+
 
 /* Preview Section */
 .preview-section {
