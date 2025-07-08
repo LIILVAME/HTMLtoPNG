@@ -76,11 +76,9 @@
   "analytics": {
     "enabled": true,
     "provider": "custom",
-    "track_conversions": true,
-    "track_errors": true,
-    "track_user_journey": true,
-    "heatmap_enabled": true,
-    "session_recording": true,
-    "funnel_tracking": true
+    "trackPageViews": true,
+    "trackUserInteractions": true,
+    "trackConversions": true,
+    "trackPerformance": true
   }
 }

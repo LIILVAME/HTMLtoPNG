@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple Buttons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Simple des Boutons</h1>
+    <p>Cette page teste si les boutons fonctionnent correctement.</p>
+    
+    <button class="test-button" onclick="testClick(1)">Bouton Test 1</button>
+    <button class="test-button" onclick="testClick(2)">Bouton Test 2</button>
+    <button class="test-button" onclick="testClick(3)">Bouton Test 3</button>
+    
+    <div class="result" id="result">
+        Cliquez sur un bouton pour tester...
+    </div>
+    
+    <script>
+        console.log('Script de test chargé');
+        
+        function testClick(buttonNumber) {
+            console.log('Bouton', buttonNumber, 'cliqué');
+            const result = document.getElementById('result');
+            result.innerHTML = `✅ Bouton ${buttonNumber} fonctionne ! Cliqué à ${new Date().toLocaleTimeString()}`;
+            result.style.background = '#d4edda';
+            result.style.color = '#155724';
+        }
+        
+        // Test d'initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM chargé, page prête');
+            const result = document.getElementById('result');
+            result.innerHTML = '🟢 Page chargée et prête pour les tests';
+        });
+    </script>
+</body>
+</html>

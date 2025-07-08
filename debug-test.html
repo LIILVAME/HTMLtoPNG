@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Test - Vérification des éléments</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Éléments de base</h2>
+        <button onclick="testBasicElements()">Tester les éléments de base</button>
+        <div id="basicElementsLog" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Événements de boutons</h2>
+        <button onclick="testButtonEvents()">Tester les événements</button>
+        <div id="buttonEventsLog" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Console JavaScript</h2>
+        <button onclick="testConsole()">Tester la console</button>
+        <div id="consoleLog" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Chargement des scripts</h2>
+        <button onclick="testScriptLoading()">Vérifier les scripts</button>
+        <div id="scriptLog" class="log"></div>
+    </div>
+
+    <script>
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            }
+        }
+        
+        function testBasicElements() {
+            const elements = [
+                'htmlInput',
+                'cssInput', 
+                'convertBtn',
+                'previewFrame',
+                'formatSelect',
+                'widthInput',
+                'heightInput'
+            ];
+            
+            let results = 'Vérification des éléments principaux:\n';
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                results += `${id}: ${element ? '✅ Trouvé' : '❌ Non trouvé'}\n`;
+            });
+            
+            log('basicElementsLog', results);
+        }
+        
+        function testButtonEvents() {
+            let results = 'Test des événements de boutons:\n';
+            
+            // Test click event
+            const testBtn = document.createElement('button');
+            testBtn.textContent = 'Test Button';
+            testBtn.onclick = () => {
+                results += '✅ Événement click fonctionne\n';
+                log('buttonEventsLog', results);
+            };
+            
+            results += '✅ Bouton de test créé\n';
+            testBtn.click();
+        }
+        
+        function testConsole() {
+            let results = 'Test de la console JavaScript:\n';
+            
+            try {
+                console.log('Test console.log');
+                results += '✅ console.log fonctionne\n';
+                
+                console.error('Test console.error');
+                results += '✅ console.error fonctionne\n';
+                
+                // Test d'une erreur intentionnelle
+                try {
+                    throw new Error('Test error');
+                } catch (e) {
+                    results += '✅ Gestion d\'erreur fonctionne: ' + e.message + '\n';
+                }
+                
+            } catch (e) {
+                results += '❌ Erreur console: ' + e.message + '\n';
+            }
+            
+            log('consoleLog', results);
+        }
+        
+        function testScriptLoading() {
+            let results = 'Vérification du chargement des scripts:\n';
+            
+            // Vérifier si les classes principales existent
+            const classes = [
+                'HTMLtoPNGConverter',
+                'UserAnalytics',
+                'APIManager',
+                'HistoryManager'
+            ];
+            
+            classes.forEach(className => {
+                try {
+                    const exists = typeof window[className] !== 'undefined';
+                    results += `${className}: ${exists ? '✅ Chargé' : '❌ Non chargé'}\n`;
+                } catch (e) {
+                    results += `${className}: ❌ Erreur - ${e.message}\n`;
+                }
+            });
+            
+            // Vérifier les variables globales
+            results += `\nVariables globales:\n`;
+            results += `window.converter: ${typeof window.converter !== 'undefined' ? '✅ Défini' : '❌ Non défini'}\n`;
+            
+            log('scriptLog', results);
+        }
+        
+        // Auto-test au chargement
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Debug page loaded');
+            setTimeout(() => {
+                testBasicElements();
+                testConsole();
+                testScriptLoading();
+            }, 1000);
+        });
+        
+        // Capturer les erreurs globales
+        window.addEventListener('error', (e) => {
+            log('consoleLog', '❌ Erreur globale: ' + e.message + ' dans ' + e.filename + ':' + e.lineno);
+        });
+    </script>
+</body>
+</html>
