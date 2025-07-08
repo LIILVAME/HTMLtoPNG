@@ -2118,18 +2118,14 @@ class HTMLtoPNGConverter {
                 e.stopPropagation();
                 
                 const section = e.target.closest('.feature-section');
-                if (section && (section.style.display === 'block' || section.classList.contains('active'))) {
-                    // Immediate closure without delay
+                if (section && section.classList.contains('active')) {
+                    // Remove active class to trigger CSS transition
                     section.classList.remove('active');
-                    section.style.display = 'none';
-                    section.style.opacity = '0';
-                    section.style.transform = 'translateY(-10px)';
                     
-                    // Reset styles after a brief moment
+                    // Hide section after transition completes
                     setTimeout(() => {
-                        section.style.opacity = '';
-                        section.style.transform = '';
-                    }, 50);
+                        section.style.display = 'none';
+                    }, 300);
                 }
             }
         });

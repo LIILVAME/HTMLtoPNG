@@ -487,20 +487,16 @@ body {
 
 /* Feature section transitions */
 .feature-section {
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    transform: translateY(0);
-    opacity: 1;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .feature-section:not(.active) {
-    opacity: 0;
-    transform: translateY(-10px);
+    transform: translateX(100%);
     pointer-events: none;
 }
 
 .feature-section.active {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
     pointer-events: auto;
 }
 
