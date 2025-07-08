@@ -386,13 +386,85 @@
             }
             
             loadAnalyticsData() {
-                // Charger les données depuis localStorage
-                const sessions = JSON.parse(localStorage.getItem('analytics_sessions') || '[]');
-                const events = JSON.parse(localStorage.getItem('analytics_events') || '[]');
-                const clicks = JSON.parse(localStorage.getItem('analytics_clicks') || '[]');
-                const conversions = JSON.parse(localStorage.getItem('analytics_conversions') || '[]');
+                // Charger toutes les sessions analytics depuis localStorage
+                const allSessions = [];
+                const allEvents = [];
+                const allClicks = [];
+                const allConversions = [];
                 
-                return { sessions, events, clicks, conversions };
+                // Parcourir toutes les clés localStorage pour trouver les données analytics
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('analytics_')) {
+                        try {
+                            const sessionData = JSON.parse(localStorage.getItem(key));
+                            if (sessionData && sessionData.sessionId) {
+                                // Ajouter la session
+                                allSessions.push({
+                                    sessionId: sessionData.sessionId,
+                                    userId: sessionData.userId,
+                                    startTime: sessionData.startTime,
+                                    endTime: sessionData.endTime,
+                                    duration: sessionData.endTime - sessionData.startTime
+                                });
+                                
+                                // Ajouter les événements
+                                if (sessionData.userActions) {
+                                    sessionData.userActions.forEach(action => {
+                                        allEvents.push({
+                                            timestamp: action.timestamp,
+                                            action: action.type,
+                                            element: action.element ? action.element.tagName : null,
+                                            data: action,
+                                            sessionId: sessionData.sessionId
+                                        });
+                                    });
+                                }
+                                
+                                // Ajouter les clics depuis heatmapData
+                                if (sessionData.heatmapData) {
+                                    sessionData.heatmapData.forEach(click => {
+                                        allClicks.push({
+                                            x: click.x / window.innerWidth,
+                                            y: click.y / window.innerHeight,
+                                            timestamp: click.timestamp,
+                                            sessionId: sessionData.sessionId
+                                        });
+                                    });
+                                }
+                                
+                                // Ajouter les conversions depuis conversionFunnel
+                                if (sessionData.conversionFunnel) {
+                                    Object.entries(sessionData.conversionFunnel).forEach(([step, completed]) => {
+                                        if (completed) {
+                                            allConversions.push({
+                                                action: step,
+                                                timestamp: sessionData.startTime,
+                                                sessionId: sessionData.sessionId
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            console.warn('Erreur lors du chargement des données analytics:', error);
+                        }
+                    }
+                }
+                
+                console.log('📊 Données chargées:', {
+                    sessions: allSessions.length,
+                    events: allEvents.length,
+                    clicks: allClicks.length,
+                    conversions: allConversions.length
+                });
+                
+                return {
+                    sessions: allSessions,
+                    events: allEvents,
+                    clicks: allClicks,
+                    conversions: allConversions
+                };
             }
             
             init() {
