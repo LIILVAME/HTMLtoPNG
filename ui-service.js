@@ -46,6 +46,11 @@ class UIService {
      * @param {string} theme - 'light' ou 'dark'
      */
     setTheme(theme) {
+        // Valider le thème
+        if (!theme || typeof theme !== 'string') {
+            theme = 'light';
+        }
+        
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('htmltopng-theme', theme);
         
@@ -57,8 +62,8 @@ class UIService {
             }
         }
         
-        // Mettre à jour l'état seulement si disponible
-        if (this.state && typeof this.state.set === 'function') {
+        // Mettre à jour l'état seulement si disponible et initialisé
+        if (this.state && typeof this.state.set === 'function' && this.state.isInitialized !== false) {
             try {
                 this.state.set('ui.theme', theme);
             } catch (error) {

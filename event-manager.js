@@ -15,7 +15,17 @@ class EventManager {
     /**
      * Ajouter un écouteur d'événement avec gestion automatique
      */
-    on(element, eventType, handler, options = {}) {
+    on(elementOrEventType, eventTypeOrHandler, handlerOrOptions, options = {}) {
+        // Si le premier paramètre est une chaîne, c'est un événement personnalisé
+        if (typeof elementOrEventType === 'string') {
+            return this.onCustom(elementOrEventType, eventTypeOrHandler, handlerOrOptions);
+        }
+        
+        // Sinon, c'est un événement DOM classique
+        const element = elementOrEventType;
+        const eventType = eventTypeOrHandler;
+        const handler = handlerOrOptions;
+        
         const listenerId = Utils.generateId('listener');
         const elementKey = this.getElementKey(element);
         
@@ -54,6 +64,13 @@ class EventManager {
         }
         
         return listenerId;
+    }
+    
+    /**
+     * Ajouter un écouteur pour les événements personnalisés
+     */
+    onCustom(eventType, handler, options = {}) {
+        return this.on(document, eventType, handler, options);
     }
 
     /**
@@ -203,7 +220,7 @@ class EventManager {
         let current = element;
         
         while (current && current !== document.body) {
-            if (current.tagName) {
+            if (current.tagName && typeof current.tagName === 'string') {
                 const index = Array.from(current.parentNode?.children || []).indexOf(current);
                 path.unshift(`${current.tagName.toLowerCase()}[${index}]`);
             } else {
