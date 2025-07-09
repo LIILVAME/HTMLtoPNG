@@ -4,7 +4,15 @@ class HTMLtoPNGConverter {
         this.currentFormat = 'html';
         this.previewTimeout = null;
         this.lastGeneratedImage = null;
-        this.workerManager = null;
+        
+        // Utiliser les services centralisés
+        this.state = $.state();
+        this.events = $.events();
+        this.ui = $.ui();
+        this.config = $.config();
+        this.utils = $.utils();
+        this.keyboard = $.keyboard();
+        this.persistence = $.persistence();
         
         this.init();
     }
@@ -12,100 +20,85 @@ class HTMLtoPNGConverter {
     init() {
         console.log('HTMLtoPNGConverter: Initialisation...');
         try {
-            this.initializeTheme();
+            // Initialiser les services principaux
+            this.initializeServices();
+            
+            // Configurer l'interface (les services centralisés gèrent maintenant le thème, clavier, auto-save)
             this.bindEvents();
             this.setupPresets();
             this.initializePreview();
-            this.setupKeyboardShortcuts();
-            this.setupAutoSave();
             
-            // Initialize Web Worker for performance
-            this.initializeWorkerManager();
-            
-            // Initialize Cache Manager for performance
-            this.initializeCacheManager();
-            
-            // Initialize Lazy Loader for performance
-            this.initializeLazyLoader();
-            
-            // Initialize API Services
-            this.initializeAPIServices();
-            
-            // Initialize Phase 2 Features
-            this.initializeImageManager();
-            this.initializeHistoryManager();
-
-            this.initializeSocialShare();
-            this.initializeQuickToolbar();
-            
-            // Initialize empty preview
+            // Initialiser la prévisualisation
             setTimeout(() => this.updatePreview(), 500);
             
-            // Set default preset to desktop
+            // Appliquer le preset par défaut
             this.applyPreset('desktop');
             
-            // Initialize UX improvements
-            this.initializeOnboarding();
-            this.initializeProgressTracking();
-            this.initializeMicroInteractions();
+            // Initialiser les améliorations UX
+            this.initializeUXEnhancements();
             
             console.log('HTMLtoPNGConverter: Initialisation réussie');
         } catch (error) {
             console.error('HTMLtoPNGConverter: Erreur lors de l\'initialisation:', error);
+            this.ui.showError('Erreur lors de l\'initialisation de l\'application');
         }
     }
 
+    initializeServices() {
+        // Les services sont déjà initialisés via ServiceManager
+        // Configurer les abonnements d'état
+        this.state.subscribe('conversion.html', () => this.debouncePreview());
+        this.state.subscribe('conversion.css', () => this.debouncePreview());
+        this.state.subscribe('conversion.width', () => this.updatePreviewSize());
+        this.state.subscribe('conversion.height', () => this.updatePreviewSize());
+        this.state.subscribe('app.theme', (theme) => this.applyTheme(theme));
+    }
+
     bindEvents() {
-        // Format switching
-        document.querySelectorAll('.format-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.switchFormat(e.target.closest('.format-btn').dataset.format);
-            });
+        // Utiliser EventManager pour une gestion centralisée
+        this.events.on('.format-btn', 'click', (e) => {
+            this.switchFormat(e.target.closest('.format-btn').dataset.format);
         });
 
-        // Code input changes
-        const htmlInput = document.getElementById('htmlInput');
-        const cssInput = document.getElementById('cssInput');
+        // Code input changes avec debounce centralisé
+        this.events.on('#htmlInput', 'input', this.utils.debounce((e) => {
+            this.state.set('conversion.html', e.target.value);
+        }, 300));
         
-        if (htmlInput) {
-            htmlInput.addEventListener('input', () => this.debouncePreview());
-        }
-        if (cssInput) {
-            cssInput.addEventListener('input', () => this.debouncePreview());
-        }
+        this.events.on('#cssInput', 'input', this.utils.debounce((e) => {
+            this.state.set('conversion.css', e.target.value);
+        }, 300));
 
-        // Resolution presets
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.applyPreset(e.target.closest('.preset-btn').dataset.preset);
-            });
+        // Presets avec EventManager
+        this.events.on('.preset-btn, .social-preset-btn', 'click', (e) => {
+            const preset = e.target.closest('[data-preset]').dataset.preset;
+            this.applyPreset(preset);
         });
 
-        // Social media presets
-        document.querySelectorAll('.social-preset-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.applyPreset(e.target.closest('.social-preset-btn').dataset.preset);
-            });
+        // Convert button utilisant le service de conversion
+        this.events.on('#convertBtn', 'click', async () => {
+            try {
+                const conversionService = $.convert();
+                const html = this.state.get('conversion.html');
+                const css = this.state.get('conversion.css');
+                const options = {
+                    width: this.state.get('conversion.width'),
+                    height: this.state.get('conversion.height'),
+                    format: this.state.get('conversion.format'),
+                    quality: this.state.get('conversion.quality')
+                };
+                
+                const result = await conversionService.convert(html, css, options);
+                this.handleConversionResult(result);
+            } catch (error) {
+                this.ui.showError('Erreur lors de la conversion: ' + error.message);
+            }
         });
 
-        // Convert button with Web Worker support
-        const convertBtn = document.getElementById('convertBtn');
-        if (convertBtn) {
-            convertBtn.addEventListener('click', () => {
-                // Use Web Worker if available, fallback to original method
-                if (this.workerManager && this.workerManager.isReady()) {
-                    this.convertToImageWithWorker();
-                } else {
-                    this.convertToImage();
-                }
-            });
-        }
-
-        // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => this.toggleTheme());
-        }
+        // Theme toggle utilisant le service UI
+        this.events.on('#themeToggle', 'click', () => {
+            this.ui.toggleTheme();
+        });
 
         // Help modal
         const helpBtn = document.getElementById('helpBtn');
@@ -231,13 +224,13 @@ class HTMLtoPNGConverter {
     }
 
     setupPresets() {
-        this.presets = {
+        // Utiliser la configuration centralisée
+        this.presets = this.config.get('PRESETS', {
             mobile: { width: 375, height: 667, scale: 0.4 },
-            iphone: { width: 375, height: 812, scale: 0.35 }, // iPhone X/11/12/13 dimensions
+            iphone: { width: 375, height: 812, scale: 0.35 },
             tablet: { width: 768, height: 1024, scale: 0.7 },
             desktop: { width: 1920, height: 1080, scale: 1.0 },
             social: { width: 1200, height: 630, scale: 0.8 },
-            // Social Media Presets
             'instagram-post': { width: 1080, height: 1080, scale: 0.8 },
             'instagram-story': { width: 1080, height: 1920, scale: 0.6 },
             'facebook-post': { width: 1200, height: 630, scale: 0.8 },
@@ -246,8 +239,9 @@ class HTMLtoPNGConverter {
             'twitter-header': { width: 1500, height: 500, scale: 0.7 },
             'linkedin-post': { width: 1200, height: 627, scale: 0.8 },
             'youtube-thumbnail': { width: 1280, height: 720, scale: 0.8 }
-        };
-        this.currentPreset = 'desktop'; // Default preset
+        });
+        
+        this.state.set('conversion.preset', 'desktop');
     }
 
     applyPreset(presetName) {
@@ -1383,208 +1377,8 @@ class HTMLtoPNGConverter {
         });
     }
 
-    // Theme Management
-    initializeTheme() {
-        const savedTheme = localStorage.getItem('htmltopng-theme') || 'light';
-        this.setTheme(savedTheme);
-    }
-
-    toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        this.setTheme(newTheme);
-    }
-
-    setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('htmltopng-theme', theme);
-        
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            const icon = themeToggle.querySelector('i');
-            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        }
-    }
-
-    // Keyboard Shortcuts
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Enter to convert
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                this.convertToImage();
-            }
-            
-            // Ctrl/Cmd + S to save/download
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                if (this.lastGeneratedImage) {
-                    this.downloadImage();
-                }
-            }
-            
-            // Ctrl/Cmd + R to refresh preview
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                this.refreshPreview();
-            }
-            
-            // F11 to expand preview
-            if (e.key === 'F11') {
-                e.preventDefault();
-                this.expandPreview();
-            }
-            
-            // Ctrl/Cmd + D to toggle theme
-            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-                e.preventDefault();
-                this.toggleTheme();
-            }
-        });
-    }
-
-    // Auto-save functionality
-    setupAutoSave() {
-        this.autoSaveInterval = setInterval(() => {
-            this.saveToLocalStorage();
-        }, 30000); // Save every 30 seconds
-        
-        // Load saved content on initialization
-        this.loadFromLocalStorage();
-    }
-
-    saveToLocalStorage() {
-        const htmlContent = document.getElementById('htmlInput').value;
-        const cssContent = document.getElementById('cssInput').value;
-        const width = document.getElementById('widthInput').value;
-        const height = document.getElementById('heightInput').value;
-        
-        const saveData = {
-            html: htmlContent,
-            css: cssContent,
-            width: width,
-            height: height,
-            timestamp: Date.now()
-        };
-        
-        localStorage.setItem('htmltopng-autosave', JSON.stringify(saveData));
-    }
-
-    loadFromLocalStorage() {
-        const savedData = localStorage.getItem('htmltopng-autosave');
-        if (savedData) {
-            try {
-                const data = JSON.parse(savedData);
-                // Only load if saved within last 24 hours
-                if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
-                    document.getElementById('htmlInput').value = data.html || '';
-                    document.getElementById('cssInput').value = data.css || '';
-                    document.getElementById('widthInput').value = data.width || '800';
-                    document.getElementById('heightInput').value = data.height || '600';
-                    
-                    // Update preview if content exists
-                    if (data.html || data.css) {
-                        setTimeout(() => this.updatePreview(), 500);
-                    }
-                }
-            } catch (e) {
-                console.warn('Failed to load auto-saved data:', e);
-            }
-        }
-    }
-
-    // Onboarding System
-    initializeOnboarding() {
-        // Check if user has completed onboarding
-        const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-        
-        if (!hasCompletedOnboarding) {
-            this.showOnboarding();
-        }
-    }
-
-    showOnboarding() {
-        const overlay = document.getElementById('onboardingOverlay');
-        if (!overlay) return;
-
-        overlay.style.display = 'flex';
-        
-        const steps = [
-            {
-                icon: '🎨',
-                title: 'Bienvenue dans HTML to PNG',
-                description: 'Convertissez facilement votre code HTML/CSS en images de haute qualité'
-            },
-            {
-                icon: '⚡',
-                title: 'Aperçu en temps réel',
-                description: 'Voyez vos modifications instantanément avec notre système de prévisualisation'
-            },
-            {
-                icon: '📱',
-                title: 'Formats optimisés',
-                description: 'Choisissez parmi des presets pour réseaux sociaux, mobiles et plus encore'
-            }
-        ];
-
-        let currentStep = 0;
-        this.renderOnboardingStep(steps[currentStep], currentStep, steps.length);
-
-        // Handle navigation
-        const nextBtn = document.getElementById('onboardingNext');
-        const skipBtn = document.getElementById('onboardingSkip');
-        const prevBtn = document.getElementById('onboardingPrev');
-
-        const showStep = (stepIndex) => {
-            if (stepIndex >= steps.length) {
-                this.completeOnboarding();
-                return;
-            }
-            currentStep = stepIndex;
-            this.renderOnboardingStep(steps[currentStep], currentStep, steps.length);
-        };
-
-        nextBtn.onclick = () => showStep(currentStep + 1);
-        skipBtn.onclick = () => this.completeOnboarding();
-        prevBtn.onclick = () => {
-            if (currentStep > 0) showStep(currentStep - 1);
-        };
-    }
-
-    renderOnboardingStep(step, index, total) {
-        const stepContent = document.querySelector('.onboarding-step');
-        const indicators = document.querySelector('.step-indicators');
-        const prevBtn = document.getElementById('onboardingPrev');
-        const nextBtn = document.getElementById('onboardingNext');
-
-        // Update step content
-        stepContent.innerHTML = `
-            <div class="step-icon">${step.icon}</div>
-            <h3>${step.title}</h3>
-            <p>${step.description}</p>
-        `;
-
-        // Update indicators
-        indicators.innerHTML = '';
-        for (let i = 0; i < total; i++) {
-            const dot = document.createElement('div');
-            dot.className = `step-dot ${i === index ? 'active' : ''}`;
-            indicators.appendChild(dot);
-        }
-
-        // Update button states
-        prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
-        nextBtn.textContent = index === total - 1 ? 'Commencer' : 'Suivant';
-    }
-
-    completeOnboarding() {
-        const overlay = document.getElementById('onboardingOverlay');
-        overlay.style.display = 'none';
-        localStorage.setItem('onboarding_completed', 'true');
-        
-        // Show welcome toast
-        this.showToast('Bienvenue ! Commencez à créer vos premières images.', 'success');
-    }
+    // Les méthodes de gestion du thème, raccourcis clavier, auto-save et onboarding
+    // ont été déplacées vers les services centralisés (ui-service.js, keyboard-service.js, persistence-service.js)
 
     // Progress Tracking
     initializeProgressTracking() {

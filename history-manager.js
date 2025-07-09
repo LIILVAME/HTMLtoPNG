@@ -21,7 +21,7 @@ class HistoryManager {
      */
     addToHistory(conversionData) {
         const historyItem = {
-            id: this.generateId(),
+            id: Utils.generateId('conversion'),
             timestamp: Date.now(),
             html: conversionData.html,
             css: conversionData.css,
@@ -44,7 +44,7 @@ class HistoryManager {
         this.saveHistory();
         this.renderHistory();
         
-        this.showToast('Conversion ajoutée à l\'historique', 'success');
+        Utils.showToast('Conversion ajoutée à l\'historique', 'success');
     }
 
     /**
@@ -82,7 +82,7 @@ class HistoryManager {
             window.htmlToPngConverter.updatePreview();
         }
 
-        this.showToast(`Conversion "${item.title}" chargée`, 'success');
+        Utils.showToast(`Conversion "${item.title}" chargée`, 'success');
         return true;
     }
 
@@ -102,7 +102,7 @@ class HistoryManager {
         
         this.saveHistory();
         this.renderHistory();
-        this.showToast('Élément supprimé de l\'historique', 'info');
+        Utils.showToast('Élément supprimé de l\'historique', 'info');
         return true;
     }
 
@@ -115,7 +115,7 @@ class HistoryManager {
             this.currentIndex = -1;
             this.saveHistory();
             this.renderHistory();
-            this.showToast('Historique effacé', 'info');
+            Utils.showToast('Historique effacé', 'info');
         }
     }
 

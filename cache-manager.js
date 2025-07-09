@@ -19,20 +19,7 @@ class CacheManager {
 
     // Générer une clé de cache basée sur le contenu
     generateKey(htmlContent, cssContent, width, height, format) {
-        const content = `${htmlContent}|${cssContent}|${width}|${height}|${format}`;
-        return this.hashCode(content).toString();
-    }
-
-    // Fonction de hachage simple
-    hashCode(str) {
-        let hash = 0;
-        if (str.length === 0) return hash;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convertir en 32bit integer
-        }
-        return Math.abs(hash);
+        return Utils.generateCacheKey(htmlContent, cssContent, width, height, format);
     }
 
     // Mettre en cache un résultat
@@ -130,20 +117,7 @@ class CacheManager {
 
     // Estimer la taille d'un objet
     estimateSize(obj) {
-        if (obj instanceof Blob) {
-            return obj.size;
-        }
-        
-        if (typeof obj === 'string') {
-            return obj.length * 2; // UTF-16
-        }
-        
-        if (obj instanceof ArrayBuffer) {
-            return obj.byteLength;
-        }
-        
-        // Estimation approximative pour les objets
-        return JSON.stringify(obj).length * 2;
+        return Utils.estimateSize(obj);
     }
 
     // Obtenir les statistiques du cache
@@ -171,11 +145,7 @@ class CacheManager {
 
     // Formater les bytes en unités lisibles
     formatBytes(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return Utils.formatBytes(bytes);
     }
 
     // Vider le cache
