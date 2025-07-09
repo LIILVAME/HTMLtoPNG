@@ -1718,12 +1718,11 @@ class HTMLtoPNGConverter {
     initializeMicroInteractions() {
         // Add pulse effect to buttons on click (excluding close buttons)
         document.addEventListener('click', (e) => {
-            // Skip if this is a close button - let the close handler deal with it
+            // Stop processing if it's a close button
             if (e.target.closest('[data-close-section]') || e.target.closest('[data-close-modal]')) {
-                return; // Don't add pulse effect, don't interfere
+                return;
             }
             
-            // Add pulse effect to buttons
             if (e.target.matches('button, .btn, .preset-btn')) {
                 e.target.classList.add('pulse-on-click');
                 setTimeout(() => {
@@ -2113,77 +2112,27 @@ class HTMLtoPNGConverter {
      * Setup close section buttons
      */
     setupCloseSectionButtons() {
-        // Bind the context for closeFeatureSection
-        const boundCloseFeatureSection = this.closeFeatureSection.bind(this);
-        
-        // Method 1: Direct event listeners on each close button (most reliable)
-        const setupDirectListeners = () => {
-            const buttons = document.querySelectorAll('[data-close-section]');
-            
-            buttons.forEach((button) => {
-                // Remove any existing listeners to avoid duplicates
-                const newButton = button.cloneNode(true);
-                button.parentNode.replaceChild(newButton, button);
-                
-                newButton.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    
-                    const section = newButton.closest('.feature-section');
-                    if (section) {
-                        boundCloseFeatureSection(section);
-                    }
-                }, { passive: false });
-            });
-        };
-        
-        // Method 2: Event delegation as backup
-        const delegationHandler = (e) => {
+        document.addEventListener('click', (e) => {
             if (e.target.closest('[data-close-section]')) {
-                const closeButton = e.target.closest('[data-close-section]');
-                const section = closeButton.closest('.feature-section');
+                e.preventDefault();
+                e.stopPropagation();
                 
-                if (section) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    boundCloseFeatureSection(section);
+                const section = e.target.closest('.feature-section');
+                if (section && (section.style.display === 'block' || section.classList.contains('active'))) {
+                    // Immediate closure without delay
+                    section.classList.remove('active');
+                    section.style.display = 'none';
+                    section.style.opacity = '0';
+                    section.style.transform = 'translateY(-10px)';
+                    
+                    // Reset styles after a brief moment
+                    setTimeout(() => {
+                        section.style.opacity = '';
+                        section.style.transform = '';
+                    }, 50);
                 }
             }
-        };
-        
-        // Remove any existing delegation listeners
-        document.removeEventListener('click', delegationHandler, true);
-        document.addEventListener('click', delegationHandler, true);
-        
-        // Setup direct listeners initially
-        setupDirectListeners();
-        
-        // Re-setup direct listeners when new content is added
-        const observer = new MutationObserver(() => {
-            setupDirectListeners();
         });
-        
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
-    
-    /**
-     * Close a feature section with proper animation
-     */
-    closeFeatureSection(section) {
-        if (!section) {
-            return;
-        }
-        
-        // Remove active class to trigger CSS transition
-        section.classList.remove('active');
-        
-        // Hide section after transition completes
-        setTimeout(() => {
-            section.style.display = 'none';
-        }, 300);
     }
     
     /**
