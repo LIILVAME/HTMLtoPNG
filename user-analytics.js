@@ -36,7 +36,11 @@ class UserAnalytics {
         this.setupScrollTracking();
         this.setupFormTracking();
         this.setupConversionTracking();
-        this.createAnalyticsDashboard();
+        
+        // Créer le dashboard seulement après un délai pour s'assurer que tout est chargé
+        setTimeout(() => {
+            this.createAnalyticsDashboard();
+        }, 1000);
     }
 
     // Générer un ID de session unique
@@ -481,16 +485,7 @@ class UserAnalytics {
 
     // Créer le dashboard analytics (visible uniquement pour les admins)
     createAnalyticsDashboard() {
-        // Vérifier si l'utilisateur est admin
-        const isAdminUser = this.isAdmin();
-        console.log('🔐 Vérification admin:', isAdminUser);
-        
-        if (!isAdminUser) {
-            console.log('❌ Accès refusé: utilisateur non-admin');
-            return; // Ne pas créer le bouton pour les utilisateurs normaux
-        }
-        
-        console.log('✅ Accès autorisé: création du bouton admin');
+        console.log('🔧 Création du bouton Analytics Dashboard...');
         
         const dashboardBtn = document.createElement('button');
         dashboardBtn.style.cssText = `
@@ -517,7 +512,43 @@ class UserAnalytics {
             this.showAnalyticsDashboard();
         });
         
+        // Masquer le bouton par défaut
+        dashboardBtn.style.display = 'none';
+        
         document.body.appendChild(dashboardBtn);
+        
+        // Stocker la référence du bouton pour pouvoir le masquer/afficher
+        this.dashboardButton = dashboardBtn;
+        
+        // Vérifier et mettre à jour la visibilité selon les privilèges admin
+        this.updateDashboardVisibility();
+        
+        console.log('✅ Bouton Analytics Dashboard créé et configuré');
+    }
+    
+    // Méthode pour masquer le bouton admin
+    hideDashboardButton() {
+        if (this.dashboardButton) {
+            this.dashboardButton.style.display = 'none';
+            console.log('🔒 Bouton Analytics masqué');
+        }
+    }
+    
+    // Méthode pour afficher le bouton admin
+    showDashboardButton() {
+        if (this.dashboardButton) {
+            this.dashboardButton.style.display = 'block';
+            console.log('🔓 Bouton Analytics affiché');
+        }
+    }
+    
+    // Méthode pour vérifier et mettre à jour la visibilité du bouton
+    updateDashboardVisibility() {
+        if (this.isAdmin()) {
+            this.showDashboardButton();
+        } else {
+            this.hideDashboardButton();
+        }
     }
     
     // Vérifier si l'utilisateur est admin
@@ -673,6 +704,27 @@ if (typeof window !== 'undefined') {
             if (config.analytics.enabled) {
                 window.userAnalytics = new UserAnalytics();
                 console.log('✅ User Analytics activées');
+                
+                // Ajouter des méthodes globales pour l'administration
+                window.enableAdminMode = function() {
+                    sessionStorage.setItem('adminAccess', 'granted');
+                    localStorage.setItem('isAdmin', 'true');
+                    if (window.userAnalytics) {
+                        window.userAnalytics.updateDashboardVisibility();
+                    }
+                    console.log('🔓 Mode administrateur activé');
+                };
+                
+                window.disableAdminMode = function() {
+                    sessionStorage.removeItem('adminAccess');
+                    localStorage.removeItem('isAdmin');
+                    if (window.userAnalytics) {
+                        window.userAnalytics.updateDashboardVisibility();
+                    }
+                    console.log('🔒 Mode administrateur désactivé');
+                };
+                
+                console.log('💡 Utilisez enableAdminMode() ou disableAdminMode() dans la console pour gérer les privilèges admin');
             } else {
                 console.log('ℹ️ User Analytics désactivées dans la configuration');
             }
