@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Live - Boutons de Fermeture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            border: 2px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            position: relative;
+        }
+        .test-section.active {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-panel">
+        <h1>🔍 Diagnostic Live - Boutons de Fermeture</h1>
+        
+        <div class="controls">
+            <button class="btn" onclick="runDiagnostic()">🔄 Lancer Diagnostic</button>
+            <button class="btn" onclick="clearLog()">🗑️ Vider Log</button>
+            <button class="btn" onclick="testOnMainSite()">🌐 Tester sur Site Principal</button>
+        </div>
+        
+        <div class="log" id="diagnosticLog"></div>
+    </div>
+
+    <div class="test-section active" id="testSection1">
+        <button class="close-btn" data-close-section onclick="closeSection(this)">×</button>
+        <h3>Section Test 1</h3>
+        <p>Cette section devrait se fermer quand on clique sur le bouton ×</p>
+    </div>
+
+    <div class="test-section" id="testSection2">
+        <button class="close-btn" data-close-section onclick="closeSection(this)">×</button>
+        <h3>Section Test 2</h3>
+        <p>Cette section devrait aussi se fermer</p>
+    </div>
+
+    <script>
+        let logElement = document.getElementById('diagnosticLog');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            logElement.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            logElement.innerHTML = '';
+        }
+        
+        function closeSection(button) {
+            log('🔴 closeSection appelée directement', 'success');
+            const section = button.closest('.test-section');
+            if (section) {
+                section.style.display = 'none';
+                log('✅ Section fermée avec succès', 'success');
+            } else {
+                log('❌ Section parente non trouvée', 'error');
+            }
+        }
+        
+        function runDiagnostic() {
+            log('🚀 Début du diagnostic...', 'info');
+            
+            // Test 1: Vérifier la présence des boutons
+            const closeButtons = document.querySelectorAll('[data-close-section]');
+            log(`📊 Nombre de boutons [data-close-section] trouvés: ${closeButtons.length}`, closeButtons.length > 0 ? 'success' : 'error');
+            
+            // Test 2: Vérifier les écouteurs d'événements
+            closeButtons.forEach((btn, index) => {
+                log(`🔍 Bouton ${index + 1}: ${btn.tagName} avec classes: ${btn.className}`, 'info');
+                
+                // Tester le clic programmatique
+                try {
+                    btn.click();
+                    log(`✅ Clic programmatique sur bouton ${index + 1} réussi`, 'success');
+                } catch (e) {
+                    log(`❌ Erreur lors du clic sur bouton ${index + 1}: ${e.message}`, 'error');
+                }
+            });
+            
+            // Test 3: Vérifier les sections parentes
+            const sections = document.querySelectorAll('.test-section');
+            log(`📊 Nombre de sections test trouvées: ${sections.length}`, 'info');
+            
+            sections.forEach((section, index) => {
+                const isVisible = section.style.display !== 'none';
+                log(`📋 Section ${index + 1} visible: ${isVisible}`, isVisible ? 'success' : 'warning');
+            });
+        }
+        
+        function testOnMainSite() {
+            log('🌐 Test sur le site principal...', 'info');
+            
+            // Ouvrir le site principal dans une nouvelle fenêtre avec du code de test
+            const testCode = `
+                // Code de diagnostic à exécuter sur le site principal
+                console.log('🔍 Diagnostic des boutons de fermeture');
+                
+                const closeButtons = document.querySelectorAll('[data-close-section]');
+                console.log('Boutons trouvés:', closeButtons.length);
+                
+                closeButtons.forEach((btn, i) => {
+                    console.log('Bouton', i, ':', btn);
+                    console.log('Parent section:', btn.closest('.feature-section'));
+                });
+                
+                // Tester un clic
+                if (closeButtons.length > 0) {
+                    console.log('Test de clic sur le premier bouton...');
+                    closeButtons[0].click();
+                }
+            `;
+            
+            log('📋 Code de test copié dans le presse-papiers. Collez-le dans la console du site principal.', 'info');
+            navigator.clipboard.writeText(testCode).then(() => {
+                log('✅ Code copié avec succès!', 'success');
+            }).catch(() => {
+                log('❌ Impossible de copier le code', 'error');
+            });
+            
+            // Ouvrir le site principal
+            window.open('https://liilvame.github.io/HTMLtoPNG/', '_blank');
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🎯 Diagnostic Live initialisé', 'success');
+            runDiagnostic();
+        });
+        
+        // Écouteur global pour capturer tous les clics
+        document.addEventListener('click', (e) => {
+            if (e.target.hasAttribute('data-close-section')) {
+                log(`🎯 Clic détecté sur bouton avec data-close-section: ${e.target.tagName}`, 'info');
+            }
+        }, true);
+    </script>
+</body>
+</html>

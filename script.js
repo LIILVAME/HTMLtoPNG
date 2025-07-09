@@ -2115,42 +2115,98 @@ class HTMLtoPNGConverter {
     setupCloseSectionButtons() {
         console.log('🔧 Setting up close section buttons...');
         
-        // Use event delegation for better performance and reliability
-        document.addEventListener('click', (e) => {
-            console.log('👆 Click detected on:', e.target.tagName, e.target.className);
+        // Bind the context for closeFeatureSection
+        const boundCloseFeatureSection = this.closeFeatureSection.bind(this);
+        
+        // Method 1: Direct event listeners on each close button (most reliable)
+        const setupDirectListeners = () => {
+            const buttons = document.querySelectorAll('[data-close-section]');
+            console.log(`📊 Found ${buttons.length} close buttons`);
             
-            // Check if clicked element is a close button or inside one
-            const closeButton = e.target.closest('[data-close-section]');
-            
-            if (closeButton) {
-                console.log('✅ Close button detected!', closeButton);
-                e.preventDefault();
-                e.stopPropagation();
+            buttons.forEach((button, index) => {
+                // Remove any existing listeners to avoid duplicates
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
                 
-                // Find the parent feature section
+                newButton.addEventListener('click', (e) => {
+                    console.log(`🔴 Close button ${index + 1} clicked`);
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    
+                    const section = newButton.closest('.feature-section');
+                    if (section) {
+                        console.log(`✅ Found section: ${section.id}`);
+                        boundCloseFeatureSection(section);
+                    } else {
+                        console.log('❌ No .feature-section parent found');
+                    }
+                }, { passive: false });
+                
+                console.log(`✅ Listener added to button ${index + 1}`);
+            });
+        };
+        
+        // Method 2: Event delegation as backup
+        const delegationHandler = (e) => {
+            if (e.target.closest('[data-close-section]')) {
+                console.log('🎯 Delegation handler triggered');
+                const closeButton = e.target.closest('[data-close-section]');
                 const section = closeButton.closest('.feature-section');
                 
                 if (section) {
-                    console.log('📦 Section found:', section.id);
-                    
-                    // Remove active class to trigger CSS transition
-                    section.classList.remove('active');
-                    console.log('🎨 Active class removed');
-                    
-                    // Hide section after transition completes
-                    setTimeout(() => {
-                        section.style.display = 'none';
-                        console.log('👻 Section hidden:', section.id);
-                    }, 300);
+                    console.log(`✅ Delegation found section: ${section.id}`);
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    boundCloseFeatureSection(section);
                 } else {
-                    console.log('❌ No parent section found!');
+                    console.log('❌ Delegation: No .feature-section parent found');
                 }
-            } else {
-                console.log('ℹ️ Not a close button');
             }
-        }, true); // Use capture phase to ensure we catch the event first
+        };
+        
+        // Remove any existing delegation listeners
+        document.removeEventListener('click', delegationHandler, true);
+        document.addEventListener('click', delegationHandler, true);
+        
+        // Setup direct listeners initially
+        setupDirectListeners();
+        
+        // Re-setup direct listeners when new content is added
+        const observer = new MutationObserver(() => {
+            console.log('🔄 DOM changed, re-setting up listeners');
+            setupDirectListeners();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
         
         console.log('✅ Close section buttons setup complete');
+    }
+    
+    /**
+     * Close a feature section with proper animation
+     */
+    closeFeatureSection(section) {
+        console.log('🚪 closeFeatureSection called with:', section);
+        
+        if (!section) {
+            console.log('❌ No section provided to closeFeatureSection');
+            return;
+        }
+        
+        console.log(`🔄 Closing section: ${section.id || 'unnamed'}`);
+        
+        // Remove active class to trigger CSS transition
+        section.classList.remove('active');
+        console.log('✅ Removed active class');
+        
+        // Hide section after transition completes
+        setTimeout(() => {
+            section.style.display = 'none';
+            console.log('✅ Section hidden');
+        }, 300);
     }
     
     /**
