@@ -619,23 +619,8 @@ class UserAnalytics {
     }
 }
 
-// Initialiser les analytics si activées
-if (typeof window !== 'undefined') {
-    // Vérifier la configuration
-    fetch('./config.json')
-        .then(response => response.json())
-        .then(config => {
-            if (config.analytics.enabled) {
-                window.userAnalytics = new UserAnalytics();
-                console.log('✅ User Analytics activées');
-            } else {
-                console.log('ℹ️ User Analytics désactivées dans la configuration');
-            }
-        })
-        .catch(error => {
-            console.warn('⚠️ Impossible de charger la configuration analytics:', error);
-        });
-}
+// Note: L'initialisation des analytics est gérée dans index.html
+// pour éviter les conflits de double initialisation
 
 // Export pour utilisation en module
 if (typeof module !== 'undefined' && module.exports) {
