@@ -2320,9 +2320,29 @@ HTMLtoPNGConverter.prototype.closeExpandedPreview = function() {
     }
 }
 
-// Initialize the converter when DOM is loaded
+// Initialize the converter when DOM is loaded and services are ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.converter = new HTMLtoPNGConverter();
+    // Attendre que les services soient initialisés
+    const initializeConverter = () => {
+        try {
+            // Vérifier que les services sont disponibles
+            if (window.$ && window.$.events && window.$.state) {
+                console.log('🚀 Initialisation de HTMLtoPNGConverter...');
+                window.converter = new HTMLtoPNGConverter();
+                console.log('✅ HTMLtoPNGConverter initialisé avec succès');
+            } else {
+                console.log('⏳ Services non encore prêts, nouvelle tentative dans 100ms...');
+                setTimeout(initializeConverter, 100);
+            }
+        } catch (error) {
+            console.error('❌ Erreur lors de l\'initialisation de HTMLtoPNGConverter:', error);
+            // Réessayer après un délai
+            setTimeout(initializeConverter, 500);
+        }
+    };
+    
+    // Démarrer l'initialisation
+    initializeConverter();
 });
 
 // Handle language changes

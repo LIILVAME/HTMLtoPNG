@@ -532,8 +532,18 @@
         // Initialiser le gestionnaire de services global
         window.serviceManager = new ServiceManager();
         
-        // Créer l'interface jQuery pour les services
-        window.$ = Object.assign(jQuery, {
+        // Créer l'interface globale pour les services (sans conflits avec jQuery)
+        window.$ = {
+            // Préserver les fonctions jQuery essentielles
+            ...(typeof jQuery !== 'undefined' ? { 
+                fn: jQuery.fn,
+                extend: jQuery.extend,
+                ajax: jQuery.ajax,
+                get: jQuery.get,
+                post: jQuery.post
+            } : {}),
+            
+            // Services de l'application
             state: () => window.serviceManager.get('stateManager'),
             events: () => window.serviceManager.get('eventManager'),
             ui: () => window.serviceManager.get('uiService'),
@@ -542,7 +552,15 @@
             keyboard: () => window.serviceManager.get('keyboardService'),
             persistence: () => window.serviceManager.get('persistenceService'),
             convert: () => window.serviceManager.get('conversionService')
-        });
+        };
+        
+        // Initialiser les services après la création de l'objet global
+        try {
+            window.serviceManager.initializeAll();
+            console.log('✅ Services initialisés avec succès');
+        } catch (error) {
+            console.error('❌ Erreur lors de l\'initialisation des services:', error);
+        }
     </script>
     <script>
         // Initialize authentication UI

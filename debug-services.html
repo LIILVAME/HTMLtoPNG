@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Services</title>
+</head>
+<body>
+    <h1>Debug Services</h1>
+    <div id="debug-output"></div>
+    
+    <!-- Load all required scripts in order -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="state-manager.js"></script>
+    <script src="event-manager.js"></script>
+    <script src="ui-service.js"></script>
+    <script src="keyboard-service.js"></script>
+    <script src="persistence-service.js"></script>
+    <script src="service-manager.js"></script>
+    
+    <script>
+        function debugLog(message) {
+            console.log(message);
+            document.getElementById('debug-output').innerHTML += '<p>' + message + '</p>';
+        }
+        
+        try {
+            debugLog('1. Vérification de jQuery: ' + (typeof jQuery !== 'undefined' ? 'OK' : 'ERREUR'));
+            debugLog('2. Vérification de Config: ' + (typeof Config !== 'undefined' ? 'OK' : 'ERREUR'));
+            debugLog('3. Vérification de Utils: ' + (typeof Utils !== 'undefined' ? 'OK' : 'ERREUR'));
+            debugLog('4. Vérification de EventManager: ' + (typeof EventManager !== 'undefined' ? 'OK' : 'ERREUR'));
+            debugLog('5. Vérification de ServiceManager: ' + (typeof ServiceManager !== 'undefined' ? 'OK' : 'ERREUR'));
+            
+            // Initialiser ServiceManager
+            debugLog('6. Initialisation de ServiceManager...');
+            window.serviceManager = new ServiceManager();
+            debugLog('7. ServiceManager initialisé: ' + (window.serviceManager ? 'OK' : 'ERREUR'));
+            
+            // Créer l'objet global $
+            debugLog('8. Création de l\'objet global $...');
+            window.$ = Object.assign(jQuery, {
+                state: () => window.serviceManager.get('stateManager'),
+                events: () => window.serviceManager.get('eventManager'),
+                ui: () => window.serviceManager.get('uiService'),
+                config: () => window.serviceManager.get('config'),
+                utils: () => window.serviceManager.get('utils'),
+                keyboard: () => window.serviceManager.get('keyboardService'),
+                persistence: () => window.serviceManager.get('persistenceService'),
+                convert: () => window.serviceManager.get('conversionService')
+            });
+            debugLog('9. Objet $ créé: ' + (window.$ ? 'OK' : 'ERREUR'));
+            
+            // Tester les services
+            debugLog('10. Test des services...');
+            try {
+                const events = $.events();
+                debugLog('11. EventManager accessible: ' + (events ? 'OK' : 'ERREUR'));
+                
+                const state = $.state();
+                debugLog('12. StateManager accessible: ' + (state ? 'OK' : 'ERREUR'));
+                
+                const ui = $.ui();
+                debugLog('13. UIService accessible: ' + (ui ? 'OK' : 'ERREUR'));
+                
+            } catch (error) {
+                debugLog('ERREUR lors du test des services: ' + error.message);
+            }
+            
+            // Test d'un événement simple
+            debugLog('14. Test d\'événement...');
+            try {
+                const events = $.events();
+                events.on('body', 'click', () => {
+                    debugLog('Événement de clic détecté!');
+                });
+                debugLog('15. Gestionnaire d\'événement ajouté: OK');
+            } catch (error) {
+                debugLog('ERREUR lors de l\'ajout d\'événement: ' + error.message);
+            }
+            
+        } catch (error) {
+            debugLog('ERREUR CRITIQUE: ' + error.message);
+            debugLog('Stack trace: ' + error.stack);
+        }
+    </script>
+    
+    <button onclick="debugLog('Test de clic manuel')">Test de clic</button>
+</body>
+</html>
