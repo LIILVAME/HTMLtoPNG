@@ -479,8 +479,13 @@ class UserAnalytics {
         }
     }
 
-    // Créer le dashboard analytics
+    // Créer le dashboard analytics (visible uniquement pour les admins)
     createAnalyticsDashboard() {
+        // Vérifier si l'utilisateur est admin
+        if (!this.isAdmin()) {
+            return; // Ne pas créer le bouton pour les utilisateurs normaux
+        }
+        
         const dashboardBtn = document.createElement('button');
         dashboardBtn.style.cssText = `
             position: fixed;
@@ -500,13 +505,35 @@ class UserAnalytics {
         `;
         
         dashboardBtn.innerHTML = '📊';
-        dashboardBtn.title = 'Analytics Dashboard';
+        dashboardBtn.title = 'Analytics Dashboard (Admin)';
         
         dashboardBtn.addEventListener('click', () => {
             this.showAnalyticsDashboard();
         });
         
         document.body.appendChild(dashboardBtn);
+    }
+    
+    // Vérifier si l'utilisateur est admin
+    isAdmin() {
+        // Méthode 1: Vérifier un paramètre URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === 'true') {
+            return true;
+        }
+        
+        // Méthode 2: Vérifier le localStorage
+        if (localStorage.getItem('isAdmin') === 'true') {
+            return true;
+        }
+        
+        // Méthode 3: Vérifier un mot de passe simple (pour demo)
+        if (sessionStorage.getItem('adminAccess') === 'granted') {
+            return true;
+        }
+        
+        // Par défaut, pas d'accès admin
+        return false;
     }
 
     // Afficher le dashboard analytics

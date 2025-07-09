@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface d'Administration - HTMLtoPNG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .admin-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .admin-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .admin-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .admin-form {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .admin-btn {
+            width: 100%;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .admin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .admin-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .admin-link {
+            display: inline-block;
+            margin: 5px 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .admin-link:hover {
+            text-decoration: underline;
+        }
+        
+        .admin-status {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active {
+            background: #28a745;
+        }
+        
+        .status-inactive {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1 class="admin-title">🔐 Interface Admin</h1>
+        <p class="admin-subtitle">Accès aux outils d'administration</p>
+        
+        <div class="admin-status">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Statut: Non connecté</span>
+        </div>
+        
+        <form class="admin-form" id="adminForm">
+            <div class="form-group">
+                <label class="form-label" for="adminPassword">Mot de passe administrateur</label>
+                <input type="password" id="adminPassword" class="form-input" placeholder="Entrez le mot de passe" required>
+            </div>
+            
+            <button type="submit" class="admin-btn" id="loginBtn">Se connecter</button>
+        </form>
+        
+        <div id="statusMessage"></div>
+        
+        <div class="admin-links">
+            <a href="./index.html" class="admin-link">← Retour à l'application</a>
+            <a href="./analytics-dashboard.html" class="admin-link">📊 Dashboard Analytics</a>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const ADMIN_PASSWORD = 'admin123'; // À changer en production
+        
+        // Éléments DOM
+        const adminForm = document.getElementById('adminForm');
+        const adminPassword = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        
+        // Vérifier le statut admin au chargement
+        checkAdminStatus();
+        
+        // Gestionnaire de formulaire
+        adminForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const password = adminPassword.value;
+            
+            if (password === ADMIN_PASSWORD) {
+                // Activer le mode admin
+                sessionStorage.setItem('adminAccess', 'granted');
+                localStorage.setItem('isAdmin', 'true');
+                
+                showMessage('✅ Connexion réussie! Mode administrateur activé.', 'success');
+                updateAdminStatus(true);
+                
+                // Rediriger vers l'application avec le paramètre admin
+                setTimeout(() => {
+                    window.location.href = './index.html?admin=true';
+                }, 1500);
+                
+            } else {
+                showMessage('❌ Mot de passe incorrect.', 'error');
+                adminPassword.value = '';
+            }
+        });
+        
+        // Fonction pour afficher les messages
+        function showMessage(message, type) {
+            statusMessage.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                statusMessage.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Vérifier le statut admin
+        function checkAdminStatus() {
+            const isAdmin = sessionStorage.getItem('adminAccess') === 'granted' || 
+                           localStorage.getItem('isAdmin') === 'true';
+            
+            updateAdminStatus(isAdmin);
+        }
+        
+        // Mettre à jour l'affichage du statut
+        function updateAdminStatus(isAdmin) {
+            if (isAdmin) {
+                statusIndicator.className = 'status-indicator status-active';
+                statusText.textContent = 'Statut: Administrateur connecté';
+                loginBtn.textContent = 'Déjà connecté';
+                loginBtn.disabled = true;
+            } else {
+                statusIndicator.className = 'status-indicator status-inactive';
+                statusText.textContent = 'Statut: Non connecté';
+                loginBtn.textContent = 'Se connecter';
+                loginBtn.disabled = false;
+            }
+        }
+        
+        // Fonction pour se déconnecter (accessible via console)
+        window.adminLogout = function() {
+            sessionStorage.removeItem('adminAccess');
+            localStorage.removeItem('isAdmin');
+            updateAdminStatus(false);
+            showMessage('🔓 Déconnexion réussie.', 'success');
+        };
+        
+        console.log('💡 Conseil: Utilisez adminLogout() dans la console pour vous déconnecter.');
+    </script>
+</body>
+</html>
