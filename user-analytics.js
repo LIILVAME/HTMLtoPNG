@@ -482,9 +482,15 @@ class UserAnalytics {
     // Créer le dashboard analytics (visible uniquement pour les admins)
     createAnalyticsDashboard() {
         // Vérifier si l'utilisateur est admin
-        if (!this.isAdmin()) {
+        const isAdminUser = this.isAdmin();
+        console.log('🔐 Vérification admin:', isAdminUser);
+        
+        if (!isAdminUser) {
+            console.log('❌ Accès refusé: utilisateur non-admin');
             return; // Ne pas créer le bouton pour les utilisateurs normaux
         }
+        
+        console.log('✅ Accès autorisé: création du bouton admin');
         
         const dashboardBtn = document.createElement('button');
         dashboardBtn.style.cssText = `
@@ -516,23 +522,35 @@ class UserAnalytics {
     
     // Vérifier si l'utilisateur est admin
     isAdmin() {
+        console.log('🔍 Vérification des privilèges admin...');
+        
         // Méthode 1: Vérifier un paramètre URL
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === 'true') {
+        const adminParam = urlParams.get('admin');
+        console.log('📍 Paramètre URL admin:', adminParam);
+        if (adminParam === 'true') {
+            console.log('✅ Admin via URL détecté');
             return true;
         }
         
         // Méthode 2: Vérifier le localStorage
-        if (localStorage.getItem('isAdmin') === 'true') {
+        const localAdmin = localStorage.getItem('isAdmin');
+        console.log('💾 localStorage isAdmin:', localAdmin);
+        if (localAdmin === 'true') {
+            console.log('✅ Admin via localStorage détecté');
             return true;
         }
         
         // Méthode 3: Vérifier un mot de passe simple (pour demo)
-        if (sessionStorage.getItem('adminAccess') === 'granted') {
+        const sessionAdmin = sessionStorage.getItem('adminAccess');
+        console.log('🔑 sessionStorage adminAccess:', sessionAdmin);
+        if (sessionAdmin === 'granted') {
+            console.log('✅ Admin via sessionStorage détecté');
             return true;
         }
         
         // Par défaut, pas d'accès admin
+        console.log('❌ Aucun privilège admin trouvé');
         return false;
     }
 
