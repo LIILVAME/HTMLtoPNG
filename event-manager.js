@@ -189,6 +189,7 @@ class EventManager {
      * Obtenir une clé unique pour un élément
      */
     getElementKey(element) {
+        if (!element) return 'null';
         if (element === document) return 'document';
         if (element === window) return 'window';
         
@@ -202,12 +203,17 @@ class EventManager {
         let current = element;
         
         while (current && current !== document.body) {
-            const index = Array.from(current.parentNode?.children || []).indexOf(current);
-            path.unshift(`${current.tagName.toLowerCase()}[${index}]`);
+            if (current.tagName) {
+                const index = Array.from(current.parentNode?.children || []).indexOf(current);
+                path.unshift(`${current.tagName.toLowerCase()}[${index}]`);
+            } else {
+                // Gérer les nœuds sans tagName (comme les nœuds de texte)
+                path.unshift('node');
+            }
             current = current.parentNode;
         }
         
-        return path.join(' > ');
+        return path.join(' > ') || 'unknown';
     }
 
     /**

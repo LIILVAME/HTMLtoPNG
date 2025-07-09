@@ -289,7 +289,7 @@ class StateManager {
             try {
                 // Vérifier que JSON.stringify ne retourne pas undefined
                 const stringified = JSON.stringify(value);
-                if (stringified === undefined) {
+                if (stringified === undefined || stringified === 'undefined') {
                     return value;
                 }
                 return JSON.parse(stringified);
