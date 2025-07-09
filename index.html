@@ -500,18 +500,50 @@
         </div>
     </div>
 
+    <!-- jQuery CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <!-- Core Services -->
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="state-manager.js"></script>
+    <script src="event-manager.js"></script>
+    <script src="service-manager.js"></script>
+    
+    <!-- Application Scripts -->
     <script src="translations.js"></script>
-<script src="auth.js"></script>
-<script src="cache-manager.js"></script>
-<script src="lazy-loader.js"></script>
-<script src="image-manager.js"></script>
-<script src="history-manager.js"></script>
-<script src="social-share.js"></script>
-<!-- Nouveaux services centralisés -->
-<script src="ui-service.js"></script>
-<script src="keyboard-service.js"></script>
-<script src="persistence-service.js"></script>
-<script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="cache-manager.js"></script>
+    <script src="lazy-loader.js"></script>
+    <script src="image-manager.js"></script>
+    <script src="history-manager.js"></script>
+    <script src="social-share.js"></script>
+    
+    <!-- Services centralisés -->
+    <script src="ui-service.js"></script>
+    <script src="keyboard-service.js"></script>
+    <script src="persistence-service.js"></script>
+    
+    <!-- Main Application -->
+    <script src="script.js"></script>
+    
+    <!-- Initialize Services -->
+    <script>
+        // Initialiser le gestionnaire de services global
+        window.serviceManager = new ServiceManager();
+        
+        // Créer l'interface jQuery pour les services
+        window.$ = Object.assign(jQuery, {
+            state: () => window.serviceManager.get('stateManager'),
+            events: () => window.serviceManager.get('eventManager'),
+            ui: () => window.serviceManager.get('uiService'),
+            config: () => window.serviceManager.get('config'),
+            utils: () => window.serviceManager.get('utils'),
+            keyboard: () => window.serviceManager.get('keyboardService'),
+            persistence: () => window.serviceManager.get('persistenceService'),
+            convert: () => window.serviceManager.get('conversionService')
+        });
+    </script>
     <script>
         // Initialize authentication UI
         document.addEventListener('DOMContentLoaded', () => {

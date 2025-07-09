@@ -43,17 +43,51 @@ class UserAnalytics {
         }, 1000);
     }
 
+    // Fonction throttle simple comme fallback
+    simpleThrottle(func, delay) {
+        let timeoutId;
+        let lastExecTime = 0;
+        return function (...args) {
+            const currentTime = Date.now();
+            
+            if (currentTime - lastExecTime > delay) {
+                func.apply(this, args);
+                lastExecTime = currentTime;
+            } else {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                    lastExecTime = Date.now();
+                }, delay - (currentTime - lastExecTime));
+            }
+        };
+    }
+
     // Générer un ID de session unique
     generateSessionId() {
-        return Utils.generateSessionId();
+        if (typeof Utils !== 'undefined') {
+            return Utils.generateSessionId();
+        }
+        // Fallback si Utils n'est pas disponible
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
     // Obtenir ou créer un ID utilisateur
     getUserId() {
-        let userId = Utils.getFromStorage('user_id');
-        if (!userId) {
-            userId = Utils.generateUserId();
-            Utils.setToStorage('user_id', userId);
+        let userId;
+        if (typeof Utils !== 'undefined') {
+            userId = Utils.getFromStorage('user_id');
+            if (!userId) {
+                userId = Utils.generateUserId();
+                Utils.setToStorage('user_id', userId);
+            }
+        } else {
+            // Fallback si Utils n'est pas disponible
+            userId = localStorage.getItem('user_id');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('user_id', userId);
+            }
         }
         return userId;
     }
@@ -104,7 +138,9 @@ class UserAnalytics {
         });
 
         // Mouvements de souris (throttled)
-        document.addEventListener('mousemove', Utils.throttle((e) => {
+        const throttleFunction = (typeof Utils !== 'undefined' && Utils.throttle) ? 
+            Utils.throttle : this.simpleThrottle;
+        document.addEventListener('mousemove', throttleFunction((e) => {
             this.trackMouseMove(e);
         }, 100));
 
