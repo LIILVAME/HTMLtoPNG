@@ -72,7 +72,25 @@ class Utils {
     static getFromStorage(key, defaultValue = null) {
         try {
             const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : defaultValue;
+            if (!item) {
+                return defaultValue;
+            }
+            
+            // Vérifier si l'item est déjà une chaîne simple (pas du JSON)
+            if (item === 'undefined' || item === 'null') {
+                return defaultValue;
+            }
+            
+            // Essayer de parser comme JSON
+            try {
+                return JSON.parse(item);
+            } catch (parseError) {
+                // Si ce n'est pas du JSON valide, retourner la valeur brute si c'est une chaîne simple
+                console.warn(`Valeur localStorage non-JSON pour la clé '${key}':`, item);
+                // Nettoyer la valeur corrompue
+                localStorage.removeItem(key);
+                return defaultValue;
+            }
         } catch (error) {
             console.warn('Erreur lecture localStorage:', error);
             return defaultValue;

@@ -76,10 +76,20 @@ class UserAnalytics {
     getUserId() {
         let userId;
         if (typeof Utils !== 'undefined') {
-            userId = Utils.getFromStorage('user_id');
-            if (!userId) {
-                userId = Utils.generateUserId();
-                Utils.setToStorage('user_id', userId);
+            try {
+                userId = Utils.getFromStorage('user_id');
+                if (!userId) {
+                    userId = Utils.generateUserId();
+                    Utils.setToStorage('user_id', userId);
+                }
+            } catch (error) {
+                console.warn('Erreur lors de la récupération de l\'ID utilisateur via Utils:', error);
+                // Fallback vers localStorage direct
+                userId = localStorage.getItem('user_id');
+                if (!userId) {
+                    userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('user_id', userId);
+                }
             }
         } else {
             // Fallback si Utils n'est pas disponible

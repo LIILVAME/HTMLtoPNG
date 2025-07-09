@@ -281,11 +281,29 @@ class StateManager {
      * Ajouter à l'historique
      */
     addToHistory(path, oldValue, newValue) {
+        // Fonction helper pour cloner en toute sécurité
+        const safeClone = (value) => {
+            if (value === undefined || value === null) {
+                return value;
+            }
+            try {
+                // Vérifier que JSON.stringify ne retourne pas undefined
+                const stringified = JSON.stringify(value);
+                if (stringified === undefined) {
+                    return value;
+                }
+                return JSON.parse(stringified);
+            } catch (error) {
+                console.warn('Impossible de cloner la valeur:', value, error);
+                return value;
+            }
+        };
+        
         this.history.push({
             timestamp: Date.now(),
             path,
-            oldValue: JSON.parse(JSON.stringify(oldValue)), // Deep clone
-            newValue: JSON.parse(JSON.stringify(newValue))
+            oldValue: safeClone(oldValue),
+            newValue: safeClone(newValue)
         });
         
         // Limiter la taille de l'historique

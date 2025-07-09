@@ -57,8 +57,14 @@ class UIService {
             }
         }
         
-        // Mettre à jour l'état
-        this.state.set('currentTheme', theme);
+        // Mettre à jour l'état seulement si disponible
+        if (this.state && typeof this.state.set === 'function') {
+            try {
+                this.state.set('currentTheme', theme);
+            } catch (error) {
+                console.warn('Erreur lors de la mise à jour du thème dans l\'état:', error);
+            }
+        }
     }
 
     /**
