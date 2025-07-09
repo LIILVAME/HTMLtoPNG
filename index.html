@@ -780,13 +780,7 @@
                     });
                 }
                 
-                // Track theme toggle
-                const themeToggle = document.getElementById('themeToggle');
-                if (themeToggle) {
-                    themeToggle.addEventListener('click', () => {
-                        window.userAnalytics.trackEvent('theme_toggled');
-                    });
-                }
+                // Track theme toggle - handled by EventManager in script.js
                 
                 // Track language changes
                 const languageSelect = document.getElementById('languageSelect');

@@ -16,9 +16,16 @@ class EventManager {
      * Ajouter un écouteur d'événement avec gestion automatique
      */
     on(elementOrEventType, eventTypeOrHandler, handlerOrOptions, options = {}) {
-        // Si le premier paramètre est une chaîne, c'est un événement personnalisé
+        // Si le premier paramètre est une chaîne
         if (typeof elementOrEventType === 'string') {
-            return this.onCustom(elementOrEventType, eventTypeOrHandler, handlerOrOptions);
+            // Vérifier si c'est un sélecteur CSS (commence par . # [ ou contient des espaces)
+            if (elementOrEventType.match(/^[.#\[]|\s/)) {
+                // C'est un sélecteur CSS - utiliser la délégation d'événements
+                return this.onSelector(elementOrEventType, eventTypeOrHandler, handlerOrOptions, options);
+            } else {
+                // C'est un événement personnalisé
+                return this.onCustom(elementOrEventType, eventTypeOrHandler, handlerOrOptions);
+            }
         }
         
         // Sinon, c'est un événement DOM classique
@@ -64,6 +71,31 @@ class EventManager {
         }
         
         return listenerId;
+    }
+    
+    /**
+     * Ajouter un écouteur avec sélecteur CSS (délégation d'événements)
+     */
+    onSelector(selector, eventType, handler, options = {}) {
+        // Gérer les sélecteurs multiples séparés par des virgules
+        const selectors = selector.split(',').map(s => s.trim());
+        
+        const delegatedHandler = (event) => {
+            // Vérifier chaque sélecteur
+            for (const sel of selectors) {
+                const target = event.target.closest(sel);
+                if (target) {
+                    // Créer un nouvel événement avec le bon target
+                    const delegatedEvent = Object.create(event);
+                    delegatedEvent.target = target;
+                    delegatedEvent.currentTarget = target;
+                    return handler(delegatedEvent);
+                }
+            }
+        };
+        
+        // Utiliser document comme conteneur pour la délégation
+        return this.on(document, eventType, delegatedHandler, options);
     }
     
     /**

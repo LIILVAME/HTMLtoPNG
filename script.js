@@ -98,6 +98,10 @@ class HTMLtoPNGConverter {
         // Theme toggle utilisant le service UI
         this.events.on('#themeToggle', 'click', () => {
             this.ui.toggleTheme();
+            // Track theme toggle
+            if (window.userAnalytics) {
+                window.userAnalytics.trackEvent('theme_toggled');
+            }
         });
 
         // Help modal
