@@ -740,21 +740,9 @@
                     }
                 });
                 
-                // Track preset usage
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('preset-btn') || e.target.closest('.preset-btn')) {
-                        const preset = e.target.dataset.preset || 'unknown';
-                        window.userAnalytics.trackEvent('preset_used', { preset: preset });
-                    }
-                });
+                // Track preset usage - handled by EventManager in script.js
                 
-                // Track social preset usage
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('social-preset-btn') || e.target.closest('.social-preset-btn')) {
-                        const preset = e.target.dataset.preset || 'unknown';
-                        window.userAnalytics.trackEvent('social_preset_used', { preset: preset });
-                    }
-                });
+                // Track social preset usage - handled by EventManager in script.js
                 
                 // Track format changes
                 const formatSelect = document.getElementById('formatSelect');

@@ -73,6 +73,15 @@ class HTMLtoPNGConverter {
         this.events.on('.preset-btn, .social-preset-btn', 'click', (e) => {
             const preset = e.target.closest('[data-preset]').dataset.preset;
             this.applyPreset(preset);
+            
+            // Track analytics
+            if (window.userAnalytics) {
+                if (e.target.classList.contains('social-preset-btn') || e.target.closest('.social-preset-btn')) {
+                    window.userAnalytics.trackEvent('social_preset_used', { preset: preset });
+                } else {
+                    window.userAnalytics.trackEvent('preset_used', { preset: preset });
+                }
+            }
         });
 
         // Convert button utilisant le service de conversion
@@ -1875,28 +1884,19 @@ class HTMLtoPNGConverter {
         // Quick Share Button - handled by SocialShareManager
         
         // Show History Button
-        const showHistoryBtn = document.getElementById('showHistoryBtn');
-        if (showHistoryBtn) {
-            showHistoryBtn.addEventListener('click', () => {
-                this.toggleFeatureSection('historyManagerSection');
-            });
-        }
+        this.events.on('#showHistoryBtn', 'click', () => {
+            this.toggleFeatureSection('historyManagerSection');
+        });
         
         // Show Templates Button
-        const showTemplatesBtn = document.getElementById('showTemplatesBtn');
-        if (showTemplatesBtn) {
-            showTemplatesBtn.addEventListener('click', () => {
-                this.toggleFeatureSection('templateManagerSection');
-            });
-        }
+        this.events.on('#showTemplatesBtn', 'click', () => {
+            this.toggleFeatureSection('templateManagerSection');
+        });
         
         // Show Images Button
-        const showImagesBtn = document.getElementById('showImagesBtn');
-        if (showImagesBtn) {
-            showImagesBtn.addEventListener('click', () => {
-                this.toggleFeatureSection('imageManagerSection');
-            });
-        }
+        this.events.on('#showImagesBtn', 'click', () => {
+            this.toggleFeatureSection('imageManagerSection');
+        });
         
         // Share History Button - handled by SocialShareManager
         
