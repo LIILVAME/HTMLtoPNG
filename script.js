@@ -52,7 +52,10 @@ class HTMLtoPNGConverter {
         this.state.subscribe('conversion.width', () => this.updatePreviewSize());
         this.state.subscribe('conversion.height', () => this.updatePreviewSize());
         this.state.subscribe('app.theme', (theme) => this.applyTheme(theme));
-    }
+
+        // Initialiser le suivi analytique
+        this.initializeAnalytics();
+    
 
     bindEvents() {
         // Utiliser EventManager pour une gestion centralisée
@@ -2320,29 +2323,58 @@ HTMLtoPNGConverter.prototype.closeExpandedPreview = function() {
     }
 }
 
+    initializeAnalytics() {
+        const analytics = window.userAnalytics;
+        if (!analytics) return;
+
+        analytics.init();
+        analytics.trackPageView('home');
+
+        this.events.on('#convertBtn', 'click', () => {
+            analytics.trackConversion('image_generation_started');
+        });
+
+        this.events.on(document, 'click', (e) => {
+            if (e.target.closest('.download-btn')) {
+                analytics.trackConversion('image_downloaded');
+            }
+            if (e.target.closest('.template-btn')) {
+                const templateName = e.target.dataset.template || 'unknown';
+                analytics.trackEvent('template_used', { template: templateName });
+            }
+        });
+
+        this.events.on('#formatSelect', 'change', (e) => {
+            analytics.trackEvent('format_changed', { format: e.target.value });
+        });
+
+        this.events.on('#qualitySelect', 'change', (e) => {
+            analytics.trackEvent('quality_changed', { quality: e.target.value });
+        });
+
+        this.events.on('#loginBtn', 'click', () => {
+            analytics.trackEvent('login_attempted');
+        });
+
+        this.events.on('#languageSelect', 'change', (e) => {
+            analytics.trackEvent('language_changed', { language: e.target.value });
+        });
+    }
+}
+
 // Initialize the converter when DOM is loaded and services are ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Attendre que les services soient initialisés
-    const initializeConverter = () => {
-        try {
-            // Vérifier que les services sont disponibles
-            if (window.$ && window.$.events && window.$.state) {
-                console.log('🚀 Initialisation de HTMLtoPNGConverter...');
-                window.converter = new HTMLtoPNGConverter();
-                console.log('✅ HTMLtoPNGConverter initialisé avec succès');
-            } else {
-                console.log('⏳ Services non encore prêts, nouvelle tentative dans 100ms...');
-                setTimeout(initializeConverter, 100);
-            }
-        } catch (error) {
-            console.error('❌ Erreur lors de l\'initialisation de HTMLtoPNGConverter:', error);
-            // Réessayer après un délai
-            setTimeout(initializeConverter, 500);
-        }
+    const initializeApp = () => {
+        window.converter = new HTMLtoPNGConverter();
     };
-    
-    // Démarrer l'initialisation
-    initializeConverter();
+
+    if (window.serviceManager && window.serviceManager.isReady()) {
+        initializeApp();
+    } else {
+        // Fallback if services are not immediately ready
+        document.addEventListener('servicesReady', initializeApp, { once: true });
+    }
+
 });
 
 // Handle language changes

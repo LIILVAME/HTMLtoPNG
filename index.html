@@ -718,86 +718,31 @@
         </div>
     </div>
     
-    <!-- API Services Scripts -->
-    <script src="api-config.js"></script>
-    <script src="api-cache.js"></script>
-    <script src="api-manager.js"></script>
-    
-    <!-- User Analytics -->
-    <script src="user-analytics.js"></script>
+    <!-- Service Initialization -->
     <script>
-        // Initialize analytics when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.UserAnalytics) {
-                window.userAnalytics = new UserAnalytics();
-                window.userAnalytics.init();
-                
-                // Track page view
-                window.userAnalytics.trackPageView('home');
-                
-                // Track conversion events
-                const convertBtn = document.getElementById('convertBtn');
-                if (convertBtn) {
-                    convertBtn.addEventListener('click', () => {
-                        window.userAnalytics.trackConversion('image_generation_started');
-                    });
-                }
-                
-                // Track download events
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('download-btn') || e.target.closest('.download-btn')) {
-                        window.userAnalytics.trackConversion('image_downloaded');
-                    }
-                });
-                
-                // Track template usage
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('template-btn') || e.target.closest('.template-btn')) {
-                        const templateName = e.target.dataset.template || 'unknown';
-                        window.userAnalytics.trackEvent('template_used', { template: templateName });
-                    }
-                });
-                
-                // Track preset usage - handled by EventManager in script.js
-                
-                // Track social preset usage - handled by EventManager in script.js
-                
-                // Track format changes
-                const formatSelect = document.getElementById('formatSelect');
-                if (formatSelect) {
-                    formatSelect.addEventListener('change', (e) => {
-                        window.userAnalytics.trackEvent('format_changed', { format: e.target.value });
-                    });
-                }
-                
-                // Track quality changes
-                const qualitySelect = document.getElementById('qualitySelect');
-                if (qualitySelect) {
-                    qualitySelect.addEventListener('change', (e) => {
-                        window.userAnalytics.trackEvent('quality_changed', { quality: e.target.value });
-                    });
-                }
-                
-                // Track authentication events
-                const loginBtn = document.getElementById('loginBtn');
-                if (loginBtn) {
-                    loginBtn.addEventListener('click', () => {
-                        window.userAnalytics.trackEvent('login_attempted');
-                    });
-                }
-                
-                // Track theme toggle - handled by EventManager in script.js
-                
-                // Track language changes
-                const languageSelect = document.getElementById('languageSelect');
-                if (languageSelect) {
-                    languageSelect.addEventListener('change', (e) => {
-                        window.userAnalytics.trackEvent('language_changed', { language: e.target.value });
-                    });
-                }
-            }
+            // Initialiser le gestionnaire de services
+            const serviceManager = new ServiceManager();
+            window.serviceManager = serviceManager;
+
+            // Initialiser tous les services
+            serviceManager.initializeAll();
         });
     </script>
+
+    <!-- Main Application Script -->
+    <script src="script.js"></script>
+
+    <!-- Debugging Script -->
+    <script>
+        window.addEventListener('error', function(event) {
+            console.error('Caught an error:', event.message, 'at', event.filename, ':', event.lineno);
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded and parsed');
+        });
+    </script>
+
 
     
     <!-- Production Scripts Only -->

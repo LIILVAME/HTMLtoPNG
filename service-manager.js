@@ -198,6 +198,35 @@ class ServiceManager {
      * Initialiser tous les services non-lazy
      */
     async initializeAll() {
+        if (this.debugMode) {
+            console.log('🚀 Initialisation de tous les services...');
+        }
+
+        const servicesToInitialize = Array.from(this.services.entries())
+            .filter(([name, config]) => !config.lazy)
+            .map(([name]) => name);
+
+        for (const name of servicesToInitialize) {
+            try {
+                await this.get(name); // 'get' gère l'initialisation
+            } catch (error) {
+                console.error(`Erreur lors de l'initialisation du service '${name}':`, error);
+                // Gérer l'erreur, peut-être arrêter le processus
+            }
+        }
+
+        if (this.debugMode) {
+            console.log('✅ Tous les services non-lazy ont été initialisés.');
+        }
+
+        // Signaler que les services sont prêts
+        const event = new CustomEvent('servicesReady');
+        document.dispatchEvent(event);
+
+        if (this.debugMode) {
+            console.log('📢 Événement servicesReady émis.');
+        }
+    }
         const nonLazyServices = Array.from(this.services.entries())
             .filter(([name, config]) => !config.lazy)
             .map(([name]) => name);
