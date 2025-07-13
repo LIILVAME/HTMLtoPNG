@@ -85,10 +85,15 @@ class EventManager {
             for (const sel of selectors) {
                 const target = event.target.closest(sel);
                 if (target) {
-                    // Créer un nouvel événement avec le bon target
-                    const delegatedEvent = Object.create(event);
-                    delegatedEvent.target = target;
-                    delegatedEvent.currentTarget = target;
+                    // Créer un nouvel objet événement avec les propriétés nécessaires
+                    const delegatedEvent = {
+                        ...event,
+                        target: target,
+                        currentTarget: target,
+                        preventDefault: () => event.preventDefault(),
+                        stopPropagation: () => event.stopPropagation(),
+                        stopImmediatePropagation: () => event.stopImmediatePropagation()
+                    };
                     return handler(delegatedEvent);
                 }
             }
