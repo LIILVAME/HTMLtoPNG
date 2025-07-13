@@ -55,7 +55,7 @@ class HTMLtoPNGConverter {
 
         // Initialiser le suivi analytique
         this.initializeAnalytics();
-    
+    }
 
     bindEvents() {
         // Utiliser EventManager pour une gestion centralisée

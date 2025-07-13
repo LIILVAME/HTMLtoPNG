@@ -227,22 +227,6 @@ class ServiceManager {
             console.log('📢 Événement servicesReady émis.');
         }
     }
-        const nonLazyServices = Array.from(this.services.entries())
-            .filter(([name, config]) => !config.lazy)
-            .map(([name]) => name);
-        
-        for (const serviceName of nonLazyServices) {
-            try {
-                this.get(serviceName);
-            } catch (error) {
-                console.error(`Erreur lors de l'initialisation du service '${serviceName}':`, error);
-            }
-        }
-        
-        if (this.debugMode) {
-            console.log('🚀 Services: Initialisation terminée');
-        }
-    }
 
     /**
      * Vérifier si un service est initialisé
