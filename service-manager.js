@@ -236,6 +236,17 @@ class ServiceManager {
     }
 
     /**
+     * Vérifier si tous les services non-lazy sont prêts
+     */
+    isReady() {
+        const nonLazyServices = Array.from(this.services.entries())
+            .filter(([name, config]) => !config.lazy)
+            .map(([name]) => name);
+        
+        return nonLazyServices.every(name => this.isInitialized(name));
+    }
+
+    /**
      * Obtenir la liste des services
      */
     getServiceNames() {

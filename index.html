@@ -721,12 +721,30 @@
     <!-- Service Initialization -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialiser le gestionnaire de services
-            const serviceManager = new ServiceManager();
-            window.serviceManager = serviceManager;
+            // Vérifier si ServiceManager n'est pas déjà initialisé
+            if (!window.serviceManager) {
+                // Initialiser le gestionnaire de services
+                const serviceManager = new ServiceManager();
+                window.serviceManager = serviceManager;
 
-            // Initialiser tous les services
-            serviceManager.initializeAll();
+                // Créer l'objet global $ pour accéder aux services
+                window.$ = {
+                    state: () => window.serviceManager.get('stateManager'),
+                    events: () => window.serviceManager.get('eventManager'),
+                    ui: () => window.serviceManager.get('uiService'),
+                    config: () => window.serviceManager.get('config'),
+                    utils: () => window.serviceManager.get('utils'),
+                    keyboard: () => window.serviceManager.get('keyboardService'),
+                    persistence: () => window.serviceManager.get('persistenceService'),
+                    convert: () => window.serviceManager.get('conversionService')
+                };
+
+                // Initialiser tous les services
+                serviceManager.initializeAll();
+                
+                // Déclencher l'événement servicesReady
+                document.dispatchEvent(new CustomEvent('servicesReady'));
+            }
         });
     </script>
 

@@ -35,12 +35,14 @@ class HTMLtoPNGConverter {
             this.applyPreset('desktop');
             
             // Initialiser les améliorations UX
-            this.initializeUXEnhancements();
+            this.initializeMicroInteractions();
+            this.initializeProgressTracking();
+            this.initializeSmartPlaceholders();
             
             console.log('HTMLtoPNGConverter: Initialisation réussie');
         } catch (error) {
             console.error('HTMLtoPNGConverter: Erreur lors de l\'initialisation:', error);
-            this.ui.showError('Erreur lors de l\'initialisation de l\'application');
+            this.showError('Erreur lors de l\'initialisation de l\'application');
         }
     }
 
@@ -103,7 +105,7 @@ class HTMLtoPNGConverter {
                 const result = await conversionService.convert(html, css, options);
                 this.handleConversionResult(result);
             } catch (error) {
-                this.ui.showError('Erreur lors de la conversion: ' + error.message);
+                this.showError('Erreur lors de la conversion: ' + error.message);
             }
         });
 
@@ -2321,9 +2323,9 @@ HTMLtoPNGConverter.prototype.closeExpandedPreview = function() {
         
         console.log('✅ Modal fermée');
     }
-}
+};
 
-    initializeAnalytics() {
+HTMLtoPNGConverter.prototype.initializeAnalytics = function() {
         const analytics = window.userAnalytics;
         if (!analytics) return;
 
@@ -2359,8 +2361,7 @@ HTMLtoPNGConverter.prototype.closeExpandedPreview = function() {
         this.events.on('#languageSelect', 'change', (e) => {
             analytics.trackEvent('language_changed', { language: e.target.value });
         });
-    }
-}
+};
 
 // Initialize the converter when DOM is loaded and services are ready
 document.addEventListener('DOMContentLoaded', () => {
