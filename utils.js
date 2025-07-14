@@ -239,6 +239,54 @@ class Utils {
         return result;
     }
 
+    /**
+     * Fonction unifiée pour mesurer les FPS
+     * @param {Function} callback - Fonction appelée avec la valeur FPS
+     * @param {number} duration - Durée de mesure en ms (défaut: 1000)
+     * @param {number} threshold - Seuil d'alerte FPS (défaut: 30)
+     * @returns {Function} Fonction pour arrêter la mesure
+     */
+    static measureFPS(callback, duration = 1000, threshold = 30) {
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let animationId;
+        let isRunning = true;
+        
+        const measure = (currentTime) => {
+            if (!isRunning) return;
+            
+            frameCount++;
+            
+            if (currentTime - lastTime >= duration) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                
+                // Appeler le callback avec les résultats
+                callback({
+                    fps,
+                    isLow: fps < threshold,
+                    timestamp: Date.now()
+                });
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            if (isRunning) {
+                animationId = requestAnimationFrame(measure);
+            }
+        };
+        
+        animationId = requestAnimationFrame(measure);
+        
+        // Retourner une fonction pour arrêter la mesure
+        return () => {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        };
+    }
+
     static async measureAsyncPerformance(name, fn) {
         const start = performance.now();
         const result = await fn();

@@ -280,3 +280,8 @@ class KeyboardService {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = KeyboardService;
 }
+
+// Export global pour utilisation dans le navigateur
+if (typeof window !== 'undefined') {
+    window.KeyboardService = KeyboardService;
+}

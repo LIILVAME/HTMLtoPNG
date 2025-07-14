@@ -32,7 +32,7 @@ class ServiceManager {
             dependencies: ['config', 'utils']
         });
         
-        this.register('apiCache', () => new APICache(), { 
+        this.register('apiCache', () => new APICacheManager(), { 
             singleton: true,
             dependencies: ['config', 'utils']
         });
@@ -74,19 +74,29 @@ class ServiceManager {
         });
         
         // Services d'interface utilisateur
-        this.register('uiService', () => new UIService(this.get('eventManager'), this.get('stateManager')), { 
+        this.register('uiService', (eventManager, stateManager) => new UIService(eventManager, stateManager), { 
             singleton: true,
             dependencies: ['eventManager', 'stateManager']
         });
         
         // Services de clavier
-        this.register('keyboardService', () => new KeyboardService(this.get('eventManager')), { 
+        this.register('keyboardService', async (eventManager) => {
+            if (typeof KeyboardService === 'undefined') {
+                await this.loadScript('keyboard-service.js');
+            }
+            return new KeyboardService(eventManager);
+        }, { 
             singleton: true,
             dependencies: ['eventManager']
         });
         
         // Services de persistance
-        this.register('persistenceService', () => new PersistenceService(this.get('eventManager'), this.get('stateManager')), { 
+        this.register('persistenceService', async (eventManager, stateManager) => {
+            if (typeof PersistenceService === 'undefined') {
+                await this.loadScript('persistence-service.js');
+            }
+            return new PersistenceService(eventManager, stateManager);
+        }, { 
             singleton: true,
             dependencies: ['eventManager', 'stateManager']
         });
@@ -133,7 +143,7 @@ class ServiceManager {
     /**
      * Obtenir un service
      */
-    get(name) {
+    async get(name) {
         const serviceConfig = this.services.get(name);
         
         if (!serviceConfig) {
@@ -146,13 +156,13 @@ class ServiceManager {
         }
         
         // Résoudre les dépendances
-        const dependencies = this.resolveDependencies(name);
+        const dependencies = await this.resolveDependencies(name);
         
         // Créer l'instance
         let instance;
         try {
             if (typeof serviceConfig.factory === 'function') {
-                instance = serviceConfig.factory(...dependencies);
+                instance = await serviceConfig.factory(...dependencies);
             } else {
                 instance = serviceConfig.factory;
             }
@@ -179,7 +189,7 @@ class ServiceManager {
     /**
      * Résoudre les dépendances d'un service
      */
-    resolveDependencies(serviceName) {
+    async resolveDependencies(serviceName) {
         const dependencies = this.dependencies.get(serviceName) || [];
         const resolved = [];
         
@@ -188,10 +198,25 @@ class ServiceManager {
                 throw new Error(`Dépendance '${depName}' non trouvée pour le service '${serviceName}'`);
             }
             
-            resolved.push(this.get(depName));
+            resolved.push(await this.get(depName));
         }
         
         return resolved;
+    }
+
+    /**
+     * Charge un script dynamiquement
+     * @param {string} url - L'URL du script à charger
+     * @returns {Promise<void>}
+     */
+    loadScript(url) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+            document.head.appendChild(script);
+        });
     }
 
     /**
@@ -339,9 +364,9 @@ class ServiceManager {
     createConversionService() {
         return {
             convert: async (html, css, options = {}) => {
-                const apiManager = this.get('apiManager');
-                const cacheManager = this.get('cacheManager');
-                const stateManager = this.get('stateManager');
+                const apiManager = await this.get('apiManager');
+                const cacheManager = await this.get('cacheManager');
+                const stateManager = await this.get('stateManager');
                 
                 stateManager.setConverting(true);
                 
@@ -374,12 +399,12 @@ class ServiceManager {
                 return Config.get('PRESETS', {});
             },
             
-            applyPreset: (presetName) => {
+            applyPreset: async (presetName) => {
                 const presets = this.getPresets();
                 const preset = presets[presetName];
                 
                 if (preset) {
-                    const stateManager = this.get('stateManager');
+                    const stateManager = await this.get('stateManager');
                     stateManager.setConversionData(preset);
                     return true;
                 }
@@ -389,64 +414,15 @@ class ServiceManager {
         };
     }
 
-    /**
-     * Créer le service d'interface utilisateur
-     */
-    createUIService() {
-        return {
-            showLoading: (message = 'Chargement...') => {
-                const stateManager = this.get('stateManager');
-                stateManager.setLoading(true);
-                // Logique d'affichage du loading
-            },
-            
-            hideLoading: () => {
-                const stateManager = this.get('stateManager');
-                stateManager.setLoading(false);
-            },
-            
-            showError: (error) => {
-                const stateManager = this.get('stateManager');
-                stateManager.setError(error);
-                Utils.showToast(error, 'error');
-            },
-            
-            showSuccess: (message) => {
-                Utils.showToast(message, 'success');
-            },
-            
-            toggleTheme: () => {
-                const stateManager = this.get('stateManager');
-                const currentTheme = stateManager.get('app.theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                stateManager.setTheme(newTheme);
-                document.documentElement.setAttribute('data-theme', newTheme);
-            },
-            
-            updatePreview: Utils.debounce((html, css) => {
-                const previewFrame = document.getElementById('preview-frame');
-                if (previewFrame) {
-                    const doc = previewFrame.contentDocument;
-                    doc.open();
-                    doc.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <style>${css}</style>
-                        </head>
-                        <body>${html}</body>
-                        </html>
-                    `);
-                    doc.close();
-                }
-            }, 300)
-        };
-    }
+
 
     /**
      * Créer le service de notification
      */
-    createNotificationService() {
+    async createNotificationService() {
+        const config = await this.get('config');
+        const stateManager = await this.get('stateManager');
+        
         return {
             show: (message, type = 'info', duration = 3000) => {
                 Utils.showToast(message, type, duration);
@@ -553,8 +529,8 @@ const serviceManager = new ServiceManager();
 
 // Initialiser les services au chargement de la page
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        serviceManager.initializeAll();
+    document.addEventListener('DOMContentLoaded', async () => {
+        await serviceManager.initializeAll();
     });
 } else {
     serviceManager.initializeAll();
@@ -578,6 +554,8 @@ window.$ = {
     api: () => serviceManager.get('apiManager'),
     cache: () => serviceManager.get('cacheManager'),
     ui: () => serviceManager.get('uiService'),
+    keyboard: () => serviceManager.get('keyboardService'),
+    persistence: () => serviceManager.get('persistenceService'),
     convert: () => serviceManager.get('conversionService'),
     notify: () => serviceManager.get('notificationService'),
     perf: () => serviceManager.get('performanceService')

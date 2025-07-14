@@ -411,21 +411,15 @@ class PersistenceService {
     }
 
     /**
-     * Fonction utilitaire de debounce
+     * Fonction utilitaire de debounce (utilise Utils.debounce)
      * @param {Function} func - La fonction à debouncer
      * @param {number} wait - Le délai d'attente
      * @returns {Function} La fonction debouncée
      */
     debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+        // TODO: MIGRATION - Fonction dupliquée supprimée
+        // Utiliser Utils.debounce() directement à la place
+        return Utils.debounce(func, wait);
     }
 
     /**
@@ -463,4 +457,9 @@ class PersistenceService {
 // Export pour utilisation en module
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = PersistenceService;
+}
+
+// Export global pour utilisation dans le navigateur
+if (typeof window !== 'undefined') {
+    window.PersistenceService = PersistenceService;
 }

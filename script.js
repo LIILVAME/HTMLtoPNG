@@ -5,23 +5,28 @@ class HTMLtoPNGConverter {
         this.previewTimeout = null;
         this.lastGeneratedImage = null;
         
-        // Utiliser les services centralisés
-        this.state = $.state();
-        this.events = $.events();
-        this.ui = $.ui();
-        this.config = $.config();
-        this.utils = $.utils();
-        this.keyboard = $.keyboard();
-        this.persistence = $.persistence();
-        
         this.init();
     }
 
-    init() {
+    async initializeServices() {
+        // Utiliser les services centralisés de manière asynchrone
+        this.state = await $.state();
+        this.events = await $.events();
+        this.ui = await $.ui();
+        this.config = await $.config();
+        this.utils = await $.utils();
+        this.keyboard = await $.keyboard();
+        this.persistence = await $.persistence();
+    }
+
+    async init() {
         console.log('HTMLtoPNGConverter: Initialisation...');
         try {
             // Initialiser les services principaux
-            this.initializeServices();
+            await this.initializeServices();
+            
+            // Configurer les abonnements d'état
+            this.setupStateSubscriptions();
             
             // Configurer l'interface (les services centralisés gèrent maintenant le thème, clavier, auto-save)
             this.bindEvents();
@@ -46,8 +51,7 @@ class HTMLtoPNGConverter {
         }
     }
 
-    initializeServices() {
-        // Les services sont déjà initialisés via ServiceManager
+    setupStateSubscriptions() {
         // Configurer les abonnements d'état
         this.state.subscribe('conversion.html', () => this.debouncePreview());
         this.state.subscribe('conversion.css', () => this.debouncePreview());
@@ -2364,19 +2368,28 @@ HTMLtoPNGConverter.prototype.initializeAnalytics = function() {
 };
 
 // Initialize the converter when DOM is loaded and services are ready
-document.addEventListener('DOMContentLoaded', () => {
-    const initializeApp = () => {
+async function initializeApp() {
+    try {
+        console.log('⏳ Initialisation de l\'application...');
+        // Assurez-vous que le serviceManager est disponible
+        if (typeof serviceManager === 'undefined') {
+            console.error('ServiceManager non trouvé. Assurez-vous que service-manager.js est chargé.');
+            return;
+        }
+
+        // Attendre que tous les services soient initialisés
+        await serviceManager.initializeAll();
+
+        console.log('✅ Services prêts, initialisation de l'application...');
         window.converter = new HTMLtoPNGConverter();
-    };
-
-    if (window.serviceManager && window.serviceManager.isReady()) {
-        initializeApp();
-    } else {
-        // Fallback if services are not immediately ready
-        document.addEventListener('servicesReady', initializeApp, { once: true });
+        await window.converter.init();
+    } catch (error) {
+        console.error('🔥 Erreur lors de l\'initialisation de l\'application:', error);
     }
+}
 
-});
+// Initialize the application when the DOM is ready
+document.addEventListener('DOMContentLoaded', initializeApp);
 
 // Handle language changes
 window.addEventListener('languageChanged', (e) => {

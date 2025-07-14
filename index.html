@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Top Navigation -->
+    <!-- Navigation -->
     <nav class="top-nav">
         <div class="nav-container">
             <div class="nav-left">
@@ -23,7 +23,7 @@
                 </div>
                 
                 <div class="nav-controls">
-                    <button class="theme-toggle" id="themeToggle" title="Toggle dark/light theme">
+                    <button class="theme-toggle" id="themeToggle" title="Basculer le thème sombre/clair">
                         <i class="fas fa-moon"></i>
                     </button>
                     
@@ -58,31 +58,10 @@
             <h1 class="logo">
                 <i class="fas fa-code"></i>
                 <span data-translate="title">HTML to PNG</span>
-                <div class="performance-badge" id="performanceBadge" style="display: none;">
-                    <i class="fas fa-rocket"></i>
-                    <span>Performance+</span>
-                </div>
             </h1>
             <p class="subtitle" data-translate="subtitle">Convert your HTML & CSS code to high-quality images</p>
         </div>
     </header>
-
-    <!-- Onboarding Overlay -->
-    <div class="onboarding-overlay" id="onboardingOverlay" style="display: none;">
-        <div class="onboarding-content">
-            <div class="onboarding-step">
-                <!-- Content will be dynamically updated by JavaScript -->
-            </div>
-            <div class="step-indicators">
-                <!-- Indicators will be dynamically updated by JavaScript -->
-            </div>
-            <div class="onboarding-buttons">
-                <button class="onboarding-btn secondary" id="onboardingPrev" style="display: none;">Précédent</button>
-                <button class="onboarding-btn primary" id="onboardingNext">Suivant</button>
-                <button class="onboarding-btn secondary" id="onboardingSkip">Passer</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Progress Bar -->
     <div class="progress-bar" id="progressBar" style="display: none;">
@@ -121,13 +100,13 @@
                     <div class="code-editor">
                         <textarea 
                             id="htmlInput" 
-                            class="code-input active input-enhanced" 
+                            class="code-input active" 
                             placeholder="Paste your HTML code here..."
                             data-translate-placeholder="html_placeholder"
                         ></textarea>
                         <textarea 
                             id="cssInput" 
-                            class="code-input input-enhanced" 
+                            class="code-input" 
                             placeholder="Paste your CSS code here..."
                             data-translate-placeholder="css_placeholder"
                         ></textarea>
@@ -139,11 +118,11 @@
                         <div class="settings-grid">
                             <div class="setting-group">
                                 <label data-translate="width_label">Width (px)</label>
-                                <input type="number" id="widthInput" class="input-enhanced" value="800" min="100" max="4000">
+                                <input type="number" id="widthInput" value="800" min="100" max="4000">
                             </div>
                             <div class="setting-group">
                                 <label data-translate="height_label">Height (px)</label>
-                                <input type="number" id="heightInput" class="input-enhanced" value="600" min="100" max="4000">
+                                <input type="number" id="heightInput" value="600" min="100" max="4000">
                             </div>
                             <div class="setting-group">
                                 <label data-translate="quality_label">Quality</label>
@@ -162,13 +141,6 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="preset-buttons">
-                            <button class="preset-btn" data-preset="mobile">📱 Mobile</button>
-                            <button class="preset-btn" data-preset="iphone">📱 iPhone</button>
-                            <button class="preset-btn" data-preset="tablet">📱 Tablet</button>
-                            <button class="preset-btn" data-preset="desktop">🖥️ Desktop</button>
-                            <button class="preset-btn" data-preset="social">📸 Social</button>
-                        </div>
                         
                         <!-- Social Media Presets -->
                         <div class="social-presets">
@@ -179,48 +151,26 @@
                                     <span>Post</span>
                                     <small>1080×1080</small>
                                 </button>
-                                <button class="social-preset-btn" data-preset="instagram-story" title="Instagram Story (1080x1920)">
-                                    <i class="fab fa-instagram"></i>
-                                    <span>Story</span>
-                                    <small>1080×1920</small>
-                                </button>
                                 <button class="social-preset-btn" data-preset="facebook-post" title="Facebook Post (1200x630)">
                                     <i class="fab fa-facebook"></i>
                                     <span>Post</span>
                                     <small>1200×630</small>
-                                </button>
-                                <button class="social-preset-btn" data-preset="facebook-cover" title="Facebook Cover (1640x859)">
-                                    <i class="fab fa-facebook"></i>
-                                    <span>Cover</span>
-                                    <small>1640×859</small>
                                 </button>
                                 <button class="social-preset-btn" data-preset="twitter-post" title="Twitter Post (1200x675)">
                                     <i class="fab fa-twitter"></i>
                                     <span>Post</span>
                                     <small>1200×675</small>
                                 </button>
-                                <button class="social-preset-btn" data-preset="twitter-header" title="Twitter Header (1500x500)">
-                                    <i class="fab fa-twitter"></i>
-                                    <span>Header</span>
-                                    <small>1500×500</small>
-                                </button>
                                 <button class="social-preset-btn" data-preset="linkedin-post" title="LinkedIn Post (1200x627)">
                                     <i class="fab fa-linkedin"></i>
                                     <span>Post</span>
                                     <small>1200×627</small>
                                 </button>
-                                <button class="social-preset-btn" data-preset="youtube-thumbnail" title="YouTube Thumbnail (1280x720)">
-                                    <i class="fab fa-youtube"></i>
-                                    <span>Thumbnail</span>
-                                    <small>1280×720</small>
-                                </button>
                             </div>
                         </div>
                     </div>
 
-
-
-                    <button class="convert-btn btn-enhanced" id="convertBtn">
+                    <button class="convert-btn" id="convertBtn">
                         <i class="fas fa-magic"></i>
                         <span data-translate="convert_btn">Convert to Image</span>
                     </button>
@@ -231,19 +181,19 @@
                     <div class="section-header">
                         <h2 data-translate="preview_title">Live Preview</h2>
                         <div class="preview-controls">
-                        <button class="control-btn" id="refreshBtn" title="Refresh Preview (Ctrl+R)">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button class="control-btn" id="expandBtn" title="Expand Preview (F11)">
-                            <i class="fas fa-expand"></i>
-                        </button>
-                        <button class="control-btn" id="downloadBtn" disabled title="Download Image (Ctrl+S)">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="control-btn" id="helpBtn" title="Keyboard Shortcuts">
-                            <i class="fas fa-question-circle"></i>
-                        </button>
-                    </div>
+                            <button class="control-btn" id="refreshBtn" title="Actualiser l'aperçu (Ctrl+R)">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="control-btn" id="expandBtn" title="Agrandir l'aperçu (F11)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="control-btn" id="downloadBtn" disabled title="Télécharger l'image (Ctrl+S)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="control-btn" id="helpBtn" title="Raccourcis clavier">
+                                <i class="fas fa-question-circle"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="preview-container">
@@ -256,39 +206,13 @@
                     </div>
                     
                     <div class="preview-info" id="previewInfo" style="display: none;">
-                        <span class="info-item">
+                        <div class="info-item">
                             <i class="fas fa-ruler-combined"></i>
                             <span id="dimensionsInfo"></span>
-                        </span>
-                        <span class="info-item">
+                        </div>
+                        <div class="info-item">
                             <i class="fas fa-file-image"></i>
                             <span id="sizeInfo"></span>
-                        </span>
-                    </div>
-                    
-                    <div class="social-share" id="socialShare" style="display: none;">
-                        <h4>Share Your Creation</h4>
-                        <div class="share-buttons">
-                            <button class="share-btn twitter" id="shareTwitter" title="Share on Twitter">
-                                <i class="fab fa-twitter"></i>
-                                Twitter
-                            </button>
-                            <button class="share-btn facebook" id="shareFacebook" title="Share on Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                                Facebook
-                            </button>
-                            <button class="share-btn linkedin" id="shareLinkedIn" title="Share on LinkedIn">
-                                <i class="fab fa-linkedin-in"></i>
-                                LinkedIn
-                            </button>
-                            <button class="share-btn pinterest" id="sharePinterest" title="Share on Pinterest">
-                                <i class="fab fa-pinterest-p"></i>
-                                Pinterest
-                            </button>
-                            <button class="share-btn copy-link" id="copyImageLink" title="Copy Image Link">
-                                <i class="fas fa-link"></i>
-                                Copy Link
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -296,296 +220,91 @@
         </div>
     </main>
 
-    <!-- Phase 2 Features -->
-    <!-- Image Manager Section -->
-    <div class="feature-section" id="imageManagerSection" style="display: none;">
-        <div class="section-header">
-            <h3><i class="fas fa-images"></i> Gestionnaire d'Images</h3>
-            <button class="close-section" data-close-section>
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="image-upload-area" id="imageUploadArea">
-            <div class="upload-placeholder">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Glissez-déposez vos images ici ou cliquez pour sélectionner</p>
-                <input type="file" id="imageFileInput" accept="image/*" multiple style="display: none;">
-                <button class="btn-primary" onclick="document.getElementById('imageFileInput').click()">
-                    Sélectionner des images
-                </button>
-            </div>
-        </div>
-        <div class="image-gallery" id="imageGallery"></div>
-        <div class="export-options">
-            <label for="exportFormat">Format d'export :</label>
-            <select id="exportFormat">
-                <option value="png">PNG (Haute qualité)</option>
-                <option value="jpg">JPG (Taille réduite)</option>
-                <option value="webp">WebP (Moderne)</option>
-                <option value="svg">SVG (Vectoriel)</option>
-            </select>
-            <label for="exportQuality">Qualité :</label>
-            <input type="range" id="exportQuality" min="10" max="100" value="90">
-            <span id="qualityValue">90%</span>
-        </div>
-    </div>
-
-    <!-- History Manager Section -->
-    <div class="feature-section" id="historyManagerSection" style="display: none;">
-        <div class="section-header">
-            <h3><i class="fas fa-history"></i> Historique des Conversions</h3>
-            <button class="close-section" data-close-section>
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="history-controls">
-            <button class="btn-secondary" id="clearHistoryBtn">
-                <i class="fas fa-trash"></i> Vider l'historique
-            </button>
-            <button class="btn-secondary" id="exportHistoryBtn">
-                <i class="fas fa-download"></i> Exporter
-            </button>
-            <button class="btn-secondary" id="importHistoryBtn">
-                <i class="fas fa-upload"></i> Importer
-            </button>
-            <input type="file" id="historyFileInput" accept=".json" style="display: none;">
-        </div>
-        <div class="history-list" id="historyList"></div>
-    </div>
-
-    <!-- Template Manager Section -->
-    <div class="feature-section" id="templateManagerSection" style="display: none;">
-        <div class="section-header">
-            <h3><i class="fas fa-layer-group"></i> Gestionnaire de Modèles</h3>
-            <button class="close-section" data-close-section>
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="template-controls">
-            <input type="text" id="templateSearch" placeholder="Rechercher un modèle...">
-            <select id="templateCategory">
-                <option value="all">Toutes les catégories</option>
-                <option value="business">Business</option>
-                <option value="social">Réseaux sociaux</option>
-                <option value="presentation">Présentation</option>
-                <option value="code">Code</option>
-                <option value="custom">Personnalisés</option>
-            </select>
-            <button class="btn-primary" id="createTemplateBtn">
-                <i class="fas fa-plus"></i> Créer un modèle
-            </button>
-        </div>
-        <div class="template-grid" id="templateGrid"></div>
-    </div>
-
-    <!-- Social Share Section -->
-    <div class="feature-section" id="socialShareContainer" style="display: none;"></div>
-
-    <!-- Quick Access Toolbar -->
-    <div class="quick-toolbar" id="quickToolbar">
-        <button class="toolbar-btn" id="quickShareBtn" title="Partage rapide">
-            <i class="fas fa-share-alt"></i>
-        </button>
-        <button class="toolbar-btn" id="showHistoryBtn" title="Historique">
-            <i class="fas fa-history"></i>
-            <span class="notification-badge">3</span>
-        </button>
-        <button class="toolbar-btn" id="showTemplatesBtn" title="Modèles">
-            <i class="fas fa-layer-group"></i>
-            <span class="notification-badge">12</span>
-        </button>
-        <button class="toolbar-btn" id="showImagesBtn" title="Images">
-            <i class="fas fa-images"></i>
-        </button>
-        <button class="toolbar-btn" id="shareHistoryBtn" title="Historique des partages">
-            <i class="fas fa-chart-line"></i>
-            <span class="notification-badge">5</span>
-        </button>
-    </div>
-
-    <!-- Help Modal -->
-    <div class="modal" id="helpModal" style="display: none;">
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Keyboard Shortcuts</h3>
-                <button class="modal-close" id="closeHelpModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="shortcut-list">
-                    <div class="shortcut-item">
-                        <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
-                        <span>Convert to Image</span>
-                    </div>
-                    <div class="shortcut-item">
-                        <kbd>Ctrl</kbd> + <kbd>S</kbd>
-                        <span>Download Image</span>
-                    </div>
-                    <div class="shortcut-item">
-                        <kbd>Ctrl</kbd> + <kbd>R</kbd>
-                        <span>Refresh Preview</span>
-                    </div>
-                    <div class="shortcut-item">
-                        <kbd>Ctrl</kbd> + <kbd>D</kbd>
-                        <span>Toggle Dark/Light Theme</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p data-translate="footer_text">Made with ❤️ for developers and designers</p>
-        </div>
-    </footer>
-
-    <!-- Login Modal -->
-    <div class="modal-overlay" id="loginModal" style="display: none;">
-        <div class="modal-content login-modal">
-            <div class="modal-header">
-                <h2>Se connecter</h2>
+                <h2>Connexion</h2>
                 <button class="modal-close" onclick="hideLoginModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <!-- Social Login -->
-                <div class="social-login">
-                    <button class="social-btn google" id="googleLoginModal">
+                <div class="login-options">
+                    <button class="login-btn google" id="googleLoginModal">
                         <i class="fab fa-google"></i>
-                        <span>Continuer avec Google</span>
+                        Se connecter avec Google
                     </button>
-                    <button class="social-btn github" id="githubLoginModal">
+                    <button class="login-btn github" id="githubLoginModal">
                         <i class="fab fa-github"></i>
-                        <span>Continuer avec GitHub</span>
+                        Se connecter avec GitHub
                     </button>
-                </div>
-                
-                <div class="divider">
-                    <span>ou</span>
-                </div>
-                
-                <!-- Manual Login Form -->
-                <form id="loginFormModal" class="login-form">
-                    <div class="form-group">
-                        <label for="emailModal">Email</label>
-                        <input type="email" id="emailModal" name="email" required>
+                    
+                    <div class="divider">
+                        <span>ou</span>
                     </div>
-                    <div class="form-group">
-                        <label for="passwordModal">Mot de passe</label>
-                        <input type="password" id="passwordModal" name="password" required>
-                    </div>
-                    <button type="submit" class="login-btn-form">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Se connecter</span>
-                    </button>
-                </form>
-                
-                <div class="modal-footer">
-                    <p>Pas encore de compte ? <a href="#" id="signupLinkModal">S'inscrire</a></p>
-                    <p><a href="#" onclick="hideLoginModal(); localStorage.setItem('demo_mode', 'true'); window.location.reload();">Continuer sans compte (Démo)</a></p>
+                    
+                    <form id="loginFormModal">
+                        <div class="form-group">
+                            <label for="emailModal">Email</label>
+                            <input type="email" id="emailModal" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="passwordModal">Mot de passe</label>
+                            <input type="password" id="passwordModal" required>
+                        </div>
+                        <button type="submit" class="login-btn primary">
+                            Se connecter
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner">
-            <i class="fas fa-cog fa-spin"></i>
-            <p data-translate="loading_text">Converting your code...</p>
+    <!-- Preview Expand Modal -->
+    <div class="preview-expand-modal" id="previewExpandModal">
+        <div class="preview-expand-content">
+            <div class="preview-expand-header">
+                <h3 class="preview-expand-title" data-translate="expanded_preview_title">Aperçu Agrandie</h3>
+                <button class="preview-expand-close" id="previewExpandClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <iframe class="preview-expand-frame" id="previewExpandFrame"></iframe>
         </div>
     </div>
 
-    <!-- jQuery CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
-    <!-- Core Services -->
+    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="utils.js"></script>
+    <script src="translations.js"></script>
     <script src="state-manager.js"></script>
     <script src="event-manager.js"></script>
-    <script src="service-manager.js"></script>
-    
-    <!-- Application Scripts -->
-    <script src="translations.js"></script>
-    <script src="auth.js"></script>
-    <script src="cache-manager.js"></script>
-    <script src="lazy-loader.js"></script>
-    <script src="image-manager.js"></script>
-    <script src="history-manager.js"></script>
-    <script src="social-share.js"></script>
-    
-    <!-- Services centralisés -->
     <script src="ui-service.js"></script>
     <script src="keyboard-service.js"></script>
     <script src="persistence-service.js"></script>
-    
-    <!-- Main Application -->
+    <script src="service-manager.js"></script>
+    <script src="auth.js"></script>
     <script src="script.js"></script>
+    <script src="preset-monitor.js"></script>
     
-    <!-- Initialize Services -->
+    <!-- Auth Initialization -->
     <script>
-        // Initialiser le gestionnaire de services global
-        window.serviceManager = new ServiceManager();
-        
-        // Créer l'interface globale pour les services (sans conflits avec jQuery)
-        window.$ = {
-            // Préserver les fonctions jQuery essentielles
-            ...(typeof jQuery !== 'undefined' ? { 
-                fn: jQuery.fn,
-                extend: jQuery.extend,
-                ajax: jQuery.ajax,
-                get: jQuery.get,
-                post: jQuery.post
-            } : {}),
-            
-            // Services de l'application
-            state: () => window.serviceManager.get('stateManager'),
-            events: () => window.serviceManager.get('eventManager'),
-            ui: () => window.serviceManager.get('uiService'),
-            config: () => window.serviceManager.get('config'),
-            utils: () => window.serviceManager.get('utils'),
-            keyboard: () => window.serviceManager.get('keyboardService'),
-            persistence: () => window.serviceManager.get('persistenceService'),
-            convert: () => window.serviceManager.get('conversionService')
-        };
-        
-        // Initialiser les services après la création de l'objet global
-        try {
-            window.serviceManager.initializeAll();
-            console.log('✅ Services initialisés avec succès');
-        } catch (error) {
-            console.error('❌ Erreur lors de l\'initialisation des services:', error);
-        }
-    </script>
-    <script>
-        // Initialize authentication UI
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if this is demo mode (URL parameter or localStorage flag)
             const urlParams = new URLSearchParams(window.location.search);
             const isDemoMode = urlParams.get('demo') === 'true' || localStorage.getItem('demo_mode') === 'true';
             
-            // Initialize auth manager
             window.authManager = new AuthManager();
             
-            // Demo mode setup (no redirection needed)
-            
-            // Setup login button
             const loginBtn = document.getElementById('loginBtn');
             const authButtons = document.getElementById('authButtons');
             const userInfo = document.getElementById('userInfo');
             
-            // Check if user is logged in
             if (window.authManager.isLoggedIn()) {
-                // User is logged in, show user info
                 authButtons.style.display = 'none';
                 userInfo.style.display = 'flex';
                 
-                // Display user information
                 const user = window.authManager.getCurrentUser();
                 if (user) {
                     document.getElementById('userAvatar').src = user.avatar;
@@ -593,49 +312,23 @@
                     document.getElementById('userEmail').textContent = user.email;
                 }
             } else {
-                // User is not logged in, show login button
                 authButtons.style.display = 'flex';
                 userInfo.style.display = 'none';
-                
-                // If in demo mode, show demo indicator
-                if (isDemoMode) {
-                    const demoIndicator = document.createElement('div');
-                    demoIndicator.style.cssText = `
-                        position: fixed;
-                        top: 10px;
-                        right: 10px;
-                        background: #ff6b6b;
-                        color: white;
-                        padding: 8px 15px;
-                        border-radius: 20px;
-                        font-size: 0.8rem;
-                        font-weight: 600;
-                        z-index: 1000;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    `;
-                    demoIndicator.textContent = 'MODE DÉMO';
-                    document.body.appendChild(demoIndicator);
-                }
             }
             
-            // Login button click handler
             loginBtn.addEventListener('click', () => {
                 showLoginModal();
             });
             
-            // Logout button click handler
             const logoutBtn = document.getElementById('logoutBtn');
             logoutBtn.addEventListener('click', () => {
                 window.authManager.logout();
-                // Refresh page to update UI
                 window.location.reload();
             });
             
-            // Setup modal login events
             setupModalLoginEvents();
         });
         
-        // Modal functions
         function showLoginModal() {
             document.getElementById('loginModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -647,7 +340,6 @@
         }
         
         function setupModalLoginEvents() {
-            // Google login modal
             const googleBtnModal = document.getElementById('googleLoginModal');
             if (googleBtnModal) {
                 googleBtnModal.addEventListener('click', async () => {
@@ -657,7 +349,6 @@
                 });
             }
             
-            // GitHub login modal
             const githubBtnModal = document.getElementById('githubLoginModal');
             if (githubBtnModal) {
                 githubBtnModal.addEventListener('click', async () => {
@@ -667,7 +358,6 @@
                 });
             }
             
-            // Manual login form modal
             const loginFormModal = document.getElementById('loginFormModal');
             if (loginFormModal) {
                 loginFormModal.addEventListener('submit', async (e) => {
@@ -682,7 +372,6 @@
                     
                     hideLoginModal();
                     
-                    // Simulate manual login
                     const user = {
                         id: 'manual_' + Date.now(),
                         name: email.split('@')[0],
@@ -696,7 +385,6 @@
                 });
             }
             
-            // Close modal when clicking outside
             document.getElementById('loginModal').addEventListener('click', (e) => {
                 if (e.target.id === 'loginModal') {
                     hideLoginModal();
@@ -705,64 +393,48 @@
         }
     </script>
     
-    <!-- Preview Expand Modal -->
-    <div class="preview-expand-modal" id="previewExpandModal">
-        <div class="preview-expand-content">
-            <div class="preview-expand-header">
-                <h3 class="preview-expand-title" data-translate="expanded_preview_title">Aperçu Agrandie</h3>
-                <button class="preview-expand-close" id="previewExpandClose">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <iframe class="preview-expand-frame" id="previewExpandFrame"></iframe>
-        </div>
-    </div>
+    <!-- Scripts de production et nettoyage -->
+    <script src="production-mode.js"></script>
+    <script src="duplicate-fixes.js"></script>
+    <script src="production-cleanup.js"></script>
+    <script src="final-cleanup.js"></script>
+    <script src="validation-script.js"></script>
+    <script src="corrections-summary.js"></script>
+    <script src="pre-publication-test.js"></script>
+    <script src="final-validation-report.js"></script>
     
     <!-- Service Initialization -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Vérifier si ServiceManager n'est pas déjà initialisé
             if (!window.serviceManager) {
-                // Initialiser le gestionnaire de services
                 const serviceManager = new ServiceManager();
                 window.serviceManager = serviceManager;
 
-                // Créer l'objet global $ pour accéder aux services
                 window.$ = {
-                    state: () => window.serviceManager.get('stateManager'),
-                    events: () => window.serviceManager.get('eventManager'),
-                    ui: () => window.serviceManager.get('uiService'),
-                    config: () => window.serviceManager.get('config'),
-                    utils: () => window.serviceManager.get('utils'),
-                    keyboard: () => window.serviceManager.get('keyboardService'),
-                    persistence: () => window.serviceManager.get('persistenceService'),
-                    convert: () => window.serviceManager.get('conversionService')
+                    state: async () => await window.serviceManager.get('stateManager'),
+                    events: async () => await window.serviceManager.get('eventManager'),
+                    ui: async () => await window.serviceManager.get('uiService'),
+                    config: async () => await window.serviceManager.get('config'),
+                    utils: async () => await window.serviceManager.get('utils'),
+                    keyboard: async () => await window.serviceManager.get('keyboardService'),
+                    persistence: async () => await window.serviceManager.get('persistenceService'),
+                    convert: async () => await window.serviceManager.get('conversionService')
                 };
 
-                // Initialiser tous les services
                 serviceManager.initializeAll();
-                
-                // Déclencher l'événement servicesReady
                 document.dispatchEvent(new CustomEvent('servicesReady'));
+                
+                // Initialiser le nettoyage final en production
+                if (typeof FinalCleanup !== 'undefined') {
+                    const finalCleanup = new FinalCleanup();
+                    finalCleanup.runFullCleanup().then(report => {
+                        console.log('Nettoyage final terminé:', report);
+                    }).catch(error => {
+                        console.error('Erreur lors du nettoyage final:', error);
+                    });
+                }
             }
         });
     </script>
-
-    <!-- Main Application Script already loaded above -->
-
-    <!-- Debugging Script -->
-    <script>
-        window.addEventListener('error', function(event) {
-            console.error('Caught an error:', event.message, 'at', event.filename, ':', event.lineno);
-        });
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM fully loaded and parsed');
-        });
-    </script>
-
-
-    
-    <!-- Production Scripts Only -->
-    <!-- Test and monitoring scripts removed for production -->
 </body>
 </html>
